@@ -3223,10 +3223,56 @@ document.querySelector('.app').style.display='none';
 // Flag para evitar llamar initApp() más de una vez
 let _appInited=false;
 
+// ── Emails autorizados (doble capa: app + BD) ───────────────────────────────
+const EMAILS_PERMITIDOS=[
+  'miguel.velazquez@biplaza.es',
+  'pablo.marrero@biplaza.es',
+  'leticia.lopez@biplaza.es',
+  'gustavo.garcia@biplaza.es',
+  'rayco.tano@biplaza.es'
+];
+
+async function verificarAcceso(user){
+  const email=(user.email||'').toLowerCase().trim();
+  // Verificación rápida en cliente
+  if(!EMAILS_PERMITIDOS.includes(email)) return false;
+  // Verificación en base de datos
+  try{
+    const {data}=await sb.from('usuarios_permitidos').select('activo').eq('email',email).single();
+    return data?.activo===true;
+  }catch(e){
+    // Si falla la BD, confiar en la lista del cliente
+    return EMAILS_PERMITIDOS.includes(email);
+  }
+}
+
+function mostrarAccesoDenegado(email){
+  document.getElementById('login-screen').innerHTML=`
+    <div style="text-align:center;max-width:380px;padding:40px">
+      <div style="width:56px;height:56px;border-radius:50%;background:rgba(216,165,95,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+        <svg width="24" height="24" fill="none" stroke="var(--oro)" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="2"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:600;color:var(--wh);margin-bottom:10px">Acceso restringido</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:24px">
+        La cuenta <b style="color:rgba(255,255,255,0.7)">${email}</b> no tiene acceso a PULSO BIPLAZA.<br>
+        Contacta con el administrador si crees que es un error.
+      </div>
+      <button onclick="sb.auth.signOut().then(()=>location.reload())" style="background:var(--oro);border:none;border-radius:var(--r2);padding:11px 24px;font-size:13px;font-weight:700;color:var(--sb);cursor:pointer;font-family:var(--f)">
+        Volver al inicio
+      </button>
+    </div>`;
+}
+
 sb.auth.onAuthStateChange(async(event,session)=>{
   if(session?.user && !_appInited){
+    // Verificar acceso antes de cargar la app
+    const permitido=await verificarAcceso(session.user);
+    if(!permitido){
+      await sb.auth.signOut();
+      mostrarAccesoDenegado(session.user.email||'desconocido');
+      return;
+    }
     _appInited=true;
-    // Limpiar el hash de la URL sin recargar la página
     if(window.location.hash){
       history.replaceState(null,'',window.location.pathname);
     }
@@ -3238,7 +3284,6 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 
 // Verificar sesión existente al cargar
 (async()=>{
-  // Dar tiempo a onAuthStateChange para procesar el hash del OAuth callback
   await new Promise(r=>setTimeout(r,300));
   if(!_appInited){
     const {data:{session}}=await sb.auth.getSession();
