@@ -592,10 +592,22 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
         <div id="heatmap-e"></div>
       </div>
       <div id="db-data" style="display:none">
+        <div id="beni-alertas-banner" style="display:none;background:rgba(216,165,95,0.06);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:12px 16px;margin-bottom:14px;display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:11px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px">✦ Beni · Señales detectadas</div>
+            <button onclick="document.getElementById('beni-alertas-banner').style.display='none'" style="background:none;border:none;color:var(--tx4);cursor:pointer;font-size:16px;line-height:1">×</button>
+          </div>
+          <div id="beni-alertas-txt" style="font-size:12.5px;color:var(--tx2);line-height:1.6;margin-top:6px"></div>
+        </div>
         <div class="c4444 cols" style="margin-bottom:14px" id="db-metrics"></div>
         <div class="cols" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);margin-bottom:14px">
           <div>
-            <div class="sec">Mapa del equipo <span style="margin-left:auto;display:flex;gap:8px"><span class="sem-item"><span class="sem-dot ok"></span>Al día</span><span class="sem-item"><span class="sem-dot amb"></span>Atención</span><span class="sem-item"><span class="sem-dot red"></span>Vencida</span></span></div>
+            <div style="display:flex;align-items:center;margin-bottom:10px">
+              <div class="sec" style="margin-bottom:0;flex:1">Mapa del equipo <span style="margin-left:auto;display:flex;gap:8px"><span class="sem-item"><span class="sem-dot ok"></span>Al día</span><span class="sem-item"><span class="sem-dot amb"></span>Atención</span><span class="sem-item"><span class="sem-dot red"></span>Vencida</span></span></div>
+              <button style="margin-left:12px;display:flex;align-items:center;gap:5px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:4px 10px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f);white-space:nowrap;flex-shrink:0"
+                onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+                onclick="beniSeñalesRiesgo()">✦ Señales de riesgo</button>
+            </div>
             <div id="heatmap"></div>
           </div>
           <div>
@@ -1826,7 +1838,12 @@ function rendBloque(idx){
   }
 
   if(b.wrap){
-    bh+=`<div class="blk-sub">Feedback Wrap <span class="tip"><span class="tip-i">?</span><span class="tip-b">Prepara los 5 pasos ANTES de decirlos. No improvises el feedback.</span></span></div>`;
+    bh+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="blk-sub" style="margin-bottom:0">Feedback Wrap <span class="tip"><span class="tip-i">?</span><span class="tip-b">Prepara los 5 pasos ANTES de decirlos. No improvises el feedback.</span></span></div>
+      <button style="display:flex;align-items:center;gap:5px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:5px 11px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f);white-space:nowrap"
+        onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+        onclick="beniFeedbackWrap()">✦ Preparar Feedback Wrap</button>
+    </div>`;
     [{n:'1',l:'Contexto',d:'Cuándo, qué proyecto, qué circunstancia.',k:'fw1'},
      {n:'2',l:'Observación objetiva',d:'Solo hechos. Sin interpretación.',k:'fw2'},
      {n:'3',l:'Reconocimiento',d:'Genuino y específico.',k:'fw3'},
@@ -1836,6 +1853,12 @@ function rendBloque(idx){
   }
 
   if(b.comp){
+    bh+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div></div>
+      <button style="display:flex;align-items:center;gap:5px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:5px 11px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f);white-space:nowrap"
+        onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+        onclick="beniCompromisosAnteriores()">✦ Ver compromisos anteriores</button>
+    </div>`;
     bh+=`<div class="cg"><div><div class="ch">${pAct.n}</div>`;
     [0,1,2].forEach(i=>{bh+=`<div class="crow"><span style="font-size:11px;font-weight:700;color:var(--oro);width:14px;flex-shrink:0">${i+1}.</span><input class="ci" type="text" id="ca${i}" value="${comp.c[i]}" oninput="comp.c[${i}]=this.value" placeholder="Compromiso concreto..."></div>`;});
     bh+=`</div><div><div class="ch o">Responsable <span class="tip"><span class="tip-i">?</span><span class="tip-b">Igual de vinculantes que los del colaborador/a. El equipo lo nota si no se cumplen.</span></span></div>`;
@@ -1846,6 +1869,10 @@ function rendBloque(idx){
   if(b.cierre){
     bh+=`<div>`;
     ['Compromisos verbalizados en voz alta','Próxima fecha confirmada','Resumen por email en 24–48h','Ficha de formación actualizada si aplica'].forEach(t=>{bh+=`<div class="chkrow" onclick="this.querySelector('.chkbox').classList.toggle('on')"><div class="chkbox"></div><span style="font-size:12.5px;color:var(--tx2)">${t}</span></div>`;});
+    bh+=`</div>
+    <button style="display:flex;align-items:center;gap:6px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r2);padding:8px 14px;font-size:12px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f);width:100%;justify-content:center;margin-top:10px"
+      onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+      onclick="beniEmailCierre()">✦ Generar borrador de email para ${pAct?.n||'la persona'}</button>`;
     bh+=`</div><div style="display:flex;align-items:center;gap:10px;background:var(--wh);border:1px solid var(--bd);border-radius:var(--r2);padding:9px 13px;margin-top:10px"><label style="font-size:12px;color:var(--tx3);font-weight:500;white-space:nowrap">Próxima sesión <span class="tip"><span class="tip-i">?</span><span class="tip-b">El ciclo recomendado es 90 días.</span></span></label><input type="date" style="border:none;background:none;font-size:13px;font-family:var(--f);color:var(--tx);flex:1;outline:none" id="fprox" value="${fProx}" oninput="fProx=this.value"></div>`;
     bh+=`<div class="blk-sub" style="margin-top:14px">Recoge el feedback de la persona sobre esta sesión</div>`;
     bh+=qrow('Valoración','¿Cómo te has sentido en esta reunión? ¿Te ha resultado útil?',0,'cierre_val');
@@ -2282,6 +2309,17 @@ async function guardar(){
     if(cr.length){lh+=`<div style="font-size:10px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 5px">Compromisos del responsable</div>`;lh+=cr.map((x,i)=>`<div style="font-size:13px;color:var(--tx2);padding:3px 0">${i+1}. ${x}</div>`).join('');}
     if(ses.prx)lh+=`<div style="margin-top:10px;font-size:13px;color:var(--tx3)">Próxima sesión: <b style="color:var(--tx)">${fmtD(ses.prx)}</b></div>`;
     lh+=`</div>`;
+    lh+=`<div id="beni-postsave" style="background:rgba(216,165,95,0.06);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <span>✦</span> Beni está analizando la sesión...
+      </div>
+      <div id="beni-postsave-txt" style="font-size:12.5px;color:var(--tx2);line-height:1.6;font-style:italic">Un momento...</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button style="flex:1;background:none;border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:6px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f)"
+          onmouseover="this.style.background='rgba(216,165,95,0.1)'" onmouseout="this.style.background='none'"
+          onclick="beniEmailCierre()">✦ Generar email de seguimiento</button>
+      </div>
+    </div>`;
     lh+=`<button class="bfull dk" onclick="go('db',document.getElementById('ni-db'))">Volver al dashboard</button>`;
     lh+=`<button class="bfull lt" onclick="openProfDirect('${pAct.n}')">Ver ficha de ${pAct.n}</button>`;
     if(main)main.innerHTML=lh;
@@ -2404,7 +2442,12 @@ function rendProf(){
   h+=`</div>`;
 
   // Session timeline
-  h+=`<div class="sec">Historial de sesiones</div>`;
+  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="sec" style="margin-bottom:0">Historial de sesiones</div>
+    ${hist.length>=3?`<button style="display:flex;align-items:center;gap:5px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:5px 11px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f)"
+      onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+      onclick="beniTrayectoria('${p.n}')">✦ Analizar trayectoria</button>`:''}
+  </div>`;
   if(!hist.length){
     h+=`<div class="ibox" style="padding:24px;text-align:center"><div style="font-size:13px;color:var(--tx3);font-style:italic;margin-bottom:10px">Sin sesiones registradas</div><button class="btn dk" onclick="quickStart('${p.n}')">Iniciar primera sesión →</button></div>`;
   } else {
@@ -2505,83 +2548,139 @@ async function rendProfDPT(){
   const el=document.getElementById('dpt-content');
   if(!el) return;
   const p=profPerson;
-  let dpt={bloque_1:{},bloque_2:{},bloque_3:{},completitud:0,id:null};
+  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--tx3);font-size:13px">Cargando puesto...</div>';
+
+  // Cargar plantilla asignada a esta persona y lista de todas las plantillas
+  let plantillaId=null;
+  let plantilla=null;
+  let todasPlantillas=[];
   try{
     const pid=C.pmap[p.n]?.id;
-    if(pid){const {data}=await sb.from('dpt').select('*').eq('persona_id',pid).maybeSingle();if(data)dpt={...dpt,...data};}
+    if(pid){
+      const {data:persona}=await sb.from('personas').select('plantilla_puesto_id').eq('id',pid).single();
+      plantillaId=persona?.plantilla_puesto_id||null;
+    }
+    const {data:pl}=await sb.from('plantillas_puesto').select('*').order('area').order('nombre');
+    todasPlantillas=pl||[];
+    if(plantillaId) plantilla=todasPlantillas.find(x=>x.id===plantillaId)||null;
   }catch(e){console.warn('DPT load',e);}
-  const b1=dpt.bloque_1||{},b2=dpt.bloque_2||{},b3=dpt.bloque_3||{};
-  const campos=[b1.cargo,b1.objetivo,b1.funciones,b2.formacion,b2.competencias_tecnicas,b2.competencias_transversales,b3.camino,b3.que_debe_demostrar];
-  const pct=Math.round((campos.filter(x=>x&&x.trim&&x.trim().length>0).length/campos.length)*100);
-  const fi=(id,val,ph,fn)=>`<input id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:8px 11px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--cream);outline:none;box-sizing:border-box" oninput="${fn}" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">`;
-  const ta=(id,val,ph,rows,fn)=>`<textarea id="${id}" rows="${rows}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:8px 11px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--cream);resize:vertical;outline:none;box-sizing:border-box;line-height:1.5" oninput="${fn}" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">${val||''}</textarea>`;
-  const lbl=(t)=>`<label style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px">${t}</label>`;
-  const blkOk=(ok)=>`<span style="font-size:11px;color:${ok?'var(--ok)':'var(--tx4)'}">${ok?'✓ Completo':'Incompleto'}</span>`;
-  const blkHd=(num,title,sub,ok)=>`<div class="dpt-blk-hd"><div><div class="dpt-blk-title">${num} · ${title}</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">${sub}</div></div>${blkOk(ok)}</div>`;
 
-  let h=`<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-    <span style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px">DPT · ${p.n}</span>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button style="background:none;border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:11px;font-weight:600;color:var(--tx3);cursor:pointer;font-family:var(--f)"
-        onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'"
-        onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"
-        onclick="plantillaImportar('${p.n}')">↓ Importar plantilla</button>
-      <span style="font-size:12px;font-weight:700;color:${pct===100?'var(--ok)':pct>50?'var(--oroD)':'var(--tx3)'}" id="dpt-pct-lbl">${pct}% completada</span>
+  const histCount=C.hist.filter(s=>s.p?.n===p.n).length;
+
+  // Header con selector de puesto
+  let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px">Puesto de trabajo</div>
+      <div style="font-size:15px;font-weight:600;color:var(--tx);margin-top:3px">${plantilla?plantilla.nombre:'Sin puesto asignado'}</div>
+      ${plantilla?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${plantilla.area}${plantilla.descripcion?' · '+plantilla.descripcion:''}</div>`:''}
     </div>
-    </div><div class="dpt-prog"><div class="dpt-prog-bar" id="dpt-pct-bar" style="width:${pct}%"></div></div></div>`;
+    <div style="display:flex;gap:8px;align-items:center">
+      ${histCount>=3?`<button style="display:flex;align-items:center;gap:4px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:5px 10px;font-size:11px;font-weight:700;color:var(--oroD);cursor:pointer;font-family:var(--f)"
+        onmouseover="this.style.background='rgba(216,165,95,0.2)'" onmouseout="this.style.background='rgba(216,165,95,0.1)'"
+        onclick="beniDPTDesdeHistorial('${p.n}')">✦ Beni desde historial</button>`:''}
+      <button class="btn lt" style="font-size:11px;padding:5px 12px" onclick="dptSelectorPuesto('${p.n}')">
+        ${plantilla?'Cambiar puesto ↓':'Asignar puesto ↓'}
+      </button>
+    </div>
+  </div>`;
 
-  h+=`<div class="dpt-blk">${blkHd('1','El puesto','Cargo, objetivo y funciones principales',!!(b1.cargo&&b1.objetivo&&b1.funciones))}
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div>${lbl('Denominación del cargo')}${fi('dpt-cargo',b1.cargo,'Ej: Asesor/a Contable N1',"dptGuardar('1')")}</div>
-      <div>${lbl('Objetivo general del puesto')}${ta('dpt-objetivo',b1.objetivo,'¿Para qué existe este puesto?',3,"dptGuardar('1')")}</div>
-      <div>${lbl('Funciones y tareas principales')}${ta('dpt-funciones',b1.funciones,'Lista las funciones más relevantes...',4,"dptGuardar('1')")}</div>
-    </div></div>`;
+  if(!plantilla){
+    // Estado vacío — sin puesto asignado
+    if(!todasPlantillas.length){
+      h+=`<div class="ibox" style="padding:28px;text-align:center">
+        <div style="font-size:22px;margin-bottom:10px">📋</div>
+        <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">Sin fichas de puesto creadas</div>
+        <div style="font-size:12px;color:var(--tx3);line-height:1.6;margin-bottom:14px">Crea las fichas de puesto en Ajustes → Plantillas. Son plantillas compartidas para cada tipo de cargo.</div>
+        <button class="btn dk" style="font-size:12px" onclick="closeSettings();cfgTab&&cfgTab(3);openSettings()">Ir a Ajustes → Plantillas</button>
+      </div>`;
+    }else{
+      h+=`<div class="ibox" style="padding:28px;text-align:center">
+        <div style="font-size:22px;margin-bottom:10px">👤</div>
+        <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">${p.n} no tiene puesto asignado aún</div>
+        <div style="font-size:12px;color:var(--tx3);line-height:1.6;margin-bottom:14px">Hay ${todasPlantillas.length} ficha${todasPlantillas.length!==1?'s':''} disponible${todasPlantillas.length!==1?'s':''}. Asigna la que corresponda.</div>
+        <button class="btn go" style="font-size:12px" onclick="dptSelectorPuesto('${p.n}')">Asignar puesto →</button>
+      </div>`;
+    }
+    el.innerHTML=h;
+    return;
+  }
 
-  h+=`<div class="dpt-blk">${blkHd('2','El perfil','Formación y competencias necesarias',!!(b2.formacion&&b2.competencias_tecnicas))}
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div>${lbl('Formación requerida')}${fi('dpt-formacion',b2.formacion,'Ej: FP Grado Superior Administración y Finanzas',"dptGuardar('2')")}</div>
-      <div>${lbl('Competencias técnicas')}${ta('dpt-comp-tec',b2.competencias_tecnicas,'Conocimientos técnicos necesarios...',3,"dptGuardar('2')")}</div>
-      <div>${lbl('Competencias transversales')}${ta('dpt-comp-tra',b2.competencias_transversales,'Comunicación, trabajo en equipo...',3,"dptGuardar('2')")}</div>
-    </div></div>`;
+  // Mostrar ficha del puesto asignado (lectura)
+  const b1=plantilla.bloque_1||{};
+  const b2=plantilla.bloque_2||{};
+  const b3=plantilla.bloque_3||{};
 
-  h+=`<div class="dpt-blk">${blkHd('3','El desarrollo','Camino de crecimiento y oportunidades',!!(b3.camino&&b3.que_debe_demostrar))}
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div>${lbl('Camino de evolución natural')}${fi('dpt-camino',b3.camino,'Ej: Asesor/a Contable N2',"dptGuardar('3')")}</div>
-      <div>${lbl('Qué debe demostrar para avanzar')}${ta('dpt-demostrar',b3.que_debe_demostrar,'Capacidades y logros que marcan el paso al siguiente nivel...',3,"dptGuardar('3')")}</div>
-      <div>${lbl('Observaciones')}${ta('dpt-obs',b3.observaciones,'Contexto relevante del puesto...',2,"dptGuardar('3')")}</div>
-    </div></div>`;
+  const sec=(num,title,sub)=>`<div style="font-size:10px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--bd)">${num} · ${title} <span style="font-weight:400;color:var(--tx3);text-transform:none;letter-spacing:0">${sub}</span></div>`;
+  const campo=(lbl,val)=>val?`<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">${lbl}</div><div style="font-size:13px;color:var(--tx);line-height:1.6;background:var(--cream);border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;white-space:pre-wrap">${val}</div></div>`:'' ;
 
-  el.dataset.dptId=dpt.id||'';
-  el.dataset.personaId=C.pmap[p.n]?.id||'';
+  h+=`<div class="ibox" style="padding:18px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:12px;color:var(--tx3)">Ficha compartida para el cargo · <a href="#" onclick="event.preventDefault();openSettings();setTimeout(()=>cfgTab(3),100)" style="color:var(--oroD)">Editar en Ajustes →</a></div>
+    </div>
+    ${sec('1','El puesto','Cargo, objetivo y funciones')}
+    ${campo('Denominación del cargo',b1.cargo)}
+    ${campo('Objetivo general',b1.objetivo)}
+    ${campo('Funciones y tareas principales',b1.funciones)}
+    ${sec('2','El perfil','Formación y competencias')}
+    ${campo('Formación requerida',b2.formacion)}
+    ${campo('Competencias técnicas',b2.competencias_tecnicas)}
+    ${campo('Competencias transversales',b2.competencias_transversales)}
+    ${sec('3','El desarrollo','Camino de crecimiento')}
+    ${campo('Camino de evolución',b3.camino)}
+    ${campo('Qué debe demostrar para avanzar',b3.que_debe_demostrar)}
+    ${b3.observaciones?campo('Observaciones',b3.observaciones):''}
+  </div>`;
+
   el.innerHTML=h;
 }
 
-let _dptTimer=null;
-function dptGuardar(bloque){clearTimeout(_dptTimer);_dptTimer=setTimeout(()=>dptGuardarNow(bloque),800);}
-
-async function dptGuardarNow(){
-  const el=document.getElementById('dpt-content');
-  if(!el) return;
-  const personaId=el.dataset.personaId;
-  if(!personaId) return;
-  const g=(id)=>document.getElementById(id)?.value||'';
-  const b1={cargo:g('dpt-cargo'),objetivo:g('dpt-objetivo'),funciones:g('dpt-funciones')};
-  const b2={formacion:g('dpt-formacion'),competencias_tecnicas:g('dpt-comp-tec'),competencias_transversales:g('dpt-comp-tra')};
-  const b3={camino:g('dpt-camino'),que_debe_demostrar:g('dpt-demostrar'),observaciones:g('dpt-obs')};
-  const campos=[b1.cargo,b1.objetivo,b1.funciones,b2.formacion,b2.competencias_tecnicas,b2.competencias_transversales,b3.camino,b3.que_debe_demostrar];
-  const pct=Math.round((campos.filter(x=>x.trim().length>0).length/campos.length)*100);
-  const {data:{user}}=await sb.auth.getUser();
-  const payload={persona_id:personaId,bloque_1:b1,bloque_2:b2,bloque_3:b3,completitud:pct,updated_by:user?.id};
-  try{
-    const dptId=el.dataset.dptId;
-    if(dptId){await sb.from('dpt').update(payload).eq('id',dptId);}
-    else{const {data}=await sb.from('dpt').insert(payload).select().single();if(data)el.dataset.dptId=data.id;}
-    const bar=document.getElementById('dpt-pct-bar');
-    const lbl=document.getElementById('dpt-pct-lbl');
-    if(bar)bar.style.width=pct+'%';
-    if(lbl){lbl.textContent=pct+'% completada';lbl.style.color=pct===100?'var(--ok)':pct>50?'var(--oroD)':'var(--tx3)';}
-  }catch(e){console.warn('DPT save',e);}
+async function dptSelectorPuesto(nombrePersona){
+  const {data:plantillas}=await sb.from('plantillas_puesto').select('*').order('area').order('nombre');
+  if(!plantillas?.length){
+    alert('No hay fichas de puesto creadas. Ve a Ajustes → Plantillas para crear la primera.');
+    return;
+  }
+  const pid=C.pmap[nombrePersona]?.id;
+  const modal=document.getElementById('modal-inner');
+  // Agrupar por área
+  const porArea={};
+  plantillas.forEach(pl=>{if(!porArea[pl.area])porArea[pl.area]=[];porArea[pl.area].push(pl);});
+  let opts='';
+  Object.entries(porArea).forEach(([area,lista])=>{
+    opts+=`<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px;margin:12px 0 6px">${area}</div>`;
+    lista.forEach(pl=>{
+      opts+=`<div style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r2);padding:11px 14px;margin-bottom:7px;cursor:pointer;transition:all 0.12s"
+        onmouseover="this.style.borderColor='var(--oro)'" onmouseout="this.style.borderColor='var(--bd)'"
+        onclick="dptAsignarPuesto('${pl.id}','${nombrePersona}')">
+        <div style="font-size:13px;font-weight:500;color:var(--tx)">${pl.nombre}</div>
+        ${pl.descripcion?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${pl.descripcion}</div>`:''}
+      </div>`;
+    });
+  });
+  modal.innerHTML=`<div style="padding:22px 24px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">Asignar puesto a ${nombrePersona}</div>
+    <div style="font-size:12px;color:var(--tx3);margin-bottom:16px">Selecciona la ficha de puesto que corresponde a su rol actual.</div>
+    ${opts}
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn lt" style="flex:1;justify-content:center" onclick="closeMo()">Cancelar</button>
+      ${pid?`<button class="btn" style="font-size:11px;padding:8px 12px;background:var(--cream);border:1px solid var(--cD);color:var(--tx3)" onclick="dptAsignarPuesto(null,'${nombrePersona}')">Quitar puesto</button>`:''}
+    </div>
+  </div>`;
+  openMo();
 }
+
+async function dptAsignarPuesto(plantillaId,nombrePersona){
+  const pid=C.pmap[nombrePersona]?.id;
+  if(!pid) return;
+  try{
+    await sb.from('personas').update({plantilla_puesto_id:plantillaId}).eq('id',pid);
+    // Actualizar caché local
+    if(C.pmap[nombrePersona]) C.pmap[nombrePersona].plantilla_id=plantillaId;
+    closeMo();
+    rendProfDPT();
+  }catch(e){alert('Error asignando puesto: '+e.message);}
+}
+
 
 // ── Tab Contexto: datos de Factorial (read-only) ─────────────────────────────
 async function rendProfCtx(){
@@ -2720,12 +2819,10 @@ const FAC_PROXY='https://lpxvatcwkerrrokrwwqt.supabase.co/functions/v1/factorial
 const FAC_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweHZhdGN3a2VycnJva3J3d3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTcwMDgsImV4cCI6MjA4OTU3MzAwOH0.or9l-I4qhwpcbQwuKYdeyJZbL-wauyExZmpEwPq7pcA';
 
 async function facCall(endpoint, params={}){
-  const token=await getSessionToken();
-  if(!token) return null;
   const qs=new URLSearchParams({endpoint,...params}).toString();
   try{
     const resp=await fetch(`${FAC_PROXY}?${qs}`,{
-      headers:{'Authorization':`Bearer ${token}`,'apikey':FAC_KEY}
+      headers:{'apikey':FAC_KEY}
     });
     if(!resp.ok) return null;
     const data=await resp.json();
@@ -3464,9 +3561,23 @@ async function beniEnviar(){
   if(!txt) return;
   inp.value='';
   beniAddMsg('user',txt);
-  // Contexto libre: si hay persona activa en pantalla, se lo pasamos
+
+  // Si estamos en modo feedback_wrap, continuar esa conversación
+  if(_beniCtx.tipo==='feedback_wrap'){
+    await beniLlamar('feedback_wrap',_beniCtx.contexto,_beniCtx.persona,[..._beniMsgs.slice(-8)]);
+    return;
+  }
+
+  // Libre con contexto de pantalla activa
   const nombre=profPerson?.n||pAct?.n||null;
-  const contexto=nombre?{persona:nombre,area:C.pmap[nombre]?.a,pregunta:txt,historial:C.hist.filter(s=>s.p?.n===nombre).slice(0,5).map(s=>({fecha:s.f,notas:Object.values(s.n||{}).filter(Boolean).join(' | '),compromisos:s.c?.c?.filter(Boolean)||[]}))}:{pregunta:txt,total_equipo:C.team.filter(p=>p.on).length};
+  const contexto=nombre?{
+    persona:nombre,area:C.pmap[nombre]?.a,pregunta:txt,
+    historial:C.hist.filter(s=>s.p?.n===nombre).slice(0,5).map(s=>({
+      fecha:s.f,
+      compromisos:s.c?.c?.filter(Boolean)||[],
+      notas:Object.values(s.n||{}).filter(Boolean).join(' | ')
+    }))
+  }:{pregunta:txt,total_equipo:C.team.filter(p=>p.on).length};
   await beniLlamar('libre',contexto,nombre,[..._beniMsgs.slice(-6)]);
 }
 
@@ -3527,12 +3638,10 @@ async function beniOrg(){
 async function beniLlamar(tipo,contexto,persona,mensajes){
   const loadId='bl'+Date.now();
   beniAddMsg('beni','<em style="opacity:.5;font-size:12px">Pensando...</em>',loadId);
-  const token=await getSessionToken();
-  if(!token){beniReplaceMsg(loadId,'Sesión expirada. Recarga la página.');return '';}
   try{
     const resp=await fetch(BENI_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'apikey':FAC_KEY},
+      headers:{'Content-Type':'application/json','apikey':FAC_KEY},
       body:JSON.stringify({tipo,contexto,persona,mensajes})
     });
     const data=await resp.json();
@@ -3567,15 +3676,208 @@ function beniReplaceMsg(id,html){
 
 // Llamada desde guardar() tras salvar sesión
 async function beniAnalizarSesion(ses){
-  if(!_beniOpen) return; // Solo si Beni está abierto
-  const hist=C.hist.filter(s=>s.p?.n===ses.p.n).slice(1,6); // sesiones previas
+  // Análisis automático post-sesión — aparece en pantalla de confirmación
+  const hist=C.hist.filter(s=>s.p?.n===ses.p.n).slice(1,6);
   const contexto={
-    sesion_actual:{persona:ses.p.n,area:ses.p.a,nivel:ses.p.nv,fecha:ses.f,primera:ses.first,compromisos_persona:ses.c?.c?.filter(Boolean)||[],compromisos_responsable:ses.c?.r?.filter(Boolean)||[],proxima:ses.prx||null,notas:Object.values(ses.n||{}).filter(Boolean).join(' | ')},
-    historial_anterior:hist.map(s=>({fecha:s.f,compromisos:s.c?.c?.filter(Boolean)||[],notas:Object.values(s.n||{}).filter(Boolean).join(' | ')}))
+    sesion_actual:{persona:ses.p.n,area:ses.p.a,nivel:ses.p.nv,fecha:ses.f,primera:ses.first,
+      compromisos_persona:ses.c?.c?.filter(Boolean)||[],
+      compromisos_responsable:ses.c?.r?.filter(Boolean)||[],
+      proxima:ses.prx||null,
+      notas:Object.values(ses.n||{}).filter(Boolean).join(' | '),
+      feedback_wrap:ses.fw?Object.entries(ses.fw).filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join(' | '):null
+    },
+    historial_anterior:hist.map(s=>({
+      fecha:s.f,
+      compromisos_persona:s.c?.c?.filter(Boolean)||[],
+      compromisos_responsable:s.c?.r?.filter(Boolean)||[],
+      notas:Object.values(s.n||{}).filter(Boolean).join(' | ')
+    }))
   };
-  beniUpdateCtxLbl(ses.p.n);
-  await beniLlamar('analisis_sesion',contexto,ses.p.n,[]);
+  // Mostrar en el banner post-sesión (no en Beni drawer)
+  const banner=document.getElementById('beni-postsave');
+  const txt=document.getElementById('beni-postsave-txt');
+  if(banner) banner.style.display='block';
+  const respuesta=await beniLlamarSilencioso('analisis_sesion',contexto,ses.p.n);
+  if(txt&&respuesta) txt.innerHTML=respuesta.replace(/\n/g,'<br>');
+  // También en Beni si está abierto
+  if(_beniOpen){
+    beniUpdateCtxLbl(ses.p.n);
+    beniAddMsg('beni',respuesta.replace(/\n/g,'<br>'));
+  }
 }
+
+// ── Feedback Wrap asistido ─────────────────────────────────────────────────
+async function beniFeedbackWrap(){
+  const nombre=pAct?.n||'la persona';
+  const hist=C.hist.filter(s=>s.p?.n===nombre).slice(0,3);
+  const contexto={
+    persona:{nombre,area:pAct?.a,nivel:pAct?.nv},
+    ultima_sesion:hist[0]?{fecha:hist[0].f,notas:Object.values(hist[0].n||{}).filter(Boolean).join(' | ')}:null,
+    feedback_wrap_actual:{
+      fw1:fw.fw1||'',fw2:fw.fw2||'',fw3:fw.fw3||'',fw4:fw.fw4||'',fw5:fw.fw5||''
+    }
+  };
+  if(!_beniOpen) beniToggle();
+  _beniMsgs=[];
+  beniUpdateCtxLbl(nombre);
+  document.getElementById('beni-msgs').innerHTML='';
+  beniAddMsg('beni',`Voy a ayudarte a estructurar el Feedback Wrap para <b>${nombre}</b>.<br><br>¿Qué comportamiento o situación quieres abordar en esta sesión?`);
+  _beniCtx={tipo:'feedback_wrap',persona:nombre,contexto};
+}
+
+// ── Compromisos anteriores ─────────────────────────────────────────────────
+async function beniCompromisosAnteriores(){
+  const nombre=pAct?.n||'la persona';
+  const hist=C.hist.filter(s=>s.p?.n===nombre).slice(0,5);
+  const contexto={
+    persona:{nombre,area:pAct?.a,nivel:pAct?.nv},
+    historial:hist.map(s=>({
+      fecha:s.f,
+      compromisos_persona:s.c?.c?.filter(Boolean)||[],
+      compromisos_responsable:s.c?.r?.filter(Boolean)||[],
+      proxima_programada:s.prx||null
+    })),
+    sesion_numero:hist.length+1
+  };
+  if(!_beniOpen) beniToggle();
+  beniUpdateCtxLbl(nombre);
+  beniAddMsg('user',`¿Qué compromisos hay pendientes con ${nombre}?`);
+  await beniLlamar('compromisos_pendientes',contexto,nombre,[]);
+}
+
+// ── Email de cierre ─────────────────────────────────────────────────────────
+async function beniEmailCierre(){
+  // Funciona tanto desde la sesión activa como desde la pantalla post-guardar
+  const nombre=pAct?.n||'la persona';
+  const ultima=C.hist.filter(s=>s.p?.n===nombre)[0];
+  const sesActual=ultima||{c:{c:[],r:[]},prx:null,f:'hoy'};
+  const contexto={
+    persona:{nombre,area:pAct?.a||sesActual?.p?.a,nivel:pAct?.nv||sesActual?.p?.nv},
+    fecha_sesion:sesActual.f,
+    compromisos_persona:sesActual.c?.c?.filter(Boolean)||comp?.c?.filter(Boolean)||[],
+    compromisos_responsable:sesActual.c?.r?.filter(Boolean)||comp?.r?.filter(Boolean)||[],
+    proxima_sesion:sesActual.prx||fProx||null,
+    notas_destacadas:Object.values(sesActual.n||notas||{}).filter(Boolean).slice(0,2).join(' | ')
+  };
+  if(!_beniOpen) beniToggle();
+  beniUpdateCtxLbl(nombre);
+  beniAddMsg('user',`Genera el email de seguimiento para ${nombre}`);
+  await beniLlamar('resumen_email',contexto,nombre,[]);
+}
+
+// ── Análisis de trayectoria ─────────────────────────────────────────────────
+async function beniTrayectoria(nombre){
+  const hist=C.hist.filter(s=>s.p?.n===nombre);
+  const p=C.pmap[nombre];
+  const contexto={
+    persona:{nombre,area:p?.a,nivel:p?.nv,total_sesiones:hist.length},
+    sesiones:hist.map(s=>({
+      fecha:s.f,numero:hist.length-hist.indexOf(s),
+      compromisos_persona:s.c?.c?.filter(Boolean)||[],
+      compromisos_responsable:s.c?.r?.filter(Boolean)||[],
+      notas:Object.values(s.n||{}).filter(Boolean).join(' | '),
+      feedback_wrap:s.fw?Object.entries(s.fw).filter(([,v])=>v&&v.trim()).length:0,
+      primera:s.first
+    }))
+  };
+  if(!_beniOpen) beniToggle();
+  _beniMsgs=[];
+  document.getElementById('beni-msgs').innerHTML='';
+  beniUpdateCtxLbl(nombre);
+  beniAddMsg('user',`Analiza la trayectoria completa de ${nombre}`);
+  await beniLlamar('analisis_trayectoria',contexto,nombre,[]);
+}
+
+// ── DPT desde historial ─────────────────────────────────────────────────────
+async function beniDPTDesdeHistorial(nombre){
+  const hist=C.hist.filter(s=>s.p?.n===nombre);
+  const p=C.pmap[nombre];
+  const contexto={
+    persona:{nombre,area:p?.a,nivel:p?.nv},
+    sesiones:hist.map(s=>({
+      fecha:s.f,
+      compromisos:s.c?.c?.filter(Boolean)||[],
+      logros:s.qr?.[1]?.r0||'',
+      retos:s.qr?.[1]?.r1||'',
+      feedback_wrap:s.fw?Object.values(s.fw).filter(Boolean).join(' | '):'',
+      notas:Object.values(s.n||{}).filter(Boolean).join(' | ')
+    }))
+  };
+  // Mostrar modal con el resultado para que Leti pueda importarlo a los campos
+  const modal=document.getElementById('modal-inner');
+  modal.innerHTML=`<div style="padding:22px 24px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">✦ Beni — DPT desde historial</div>
+    <div style="font-size:12px;color:var(--tx3);margin-bottom:16px">Analizando ${hist.length} sesiones de ${nombre}...</div>
+    <div id="beni-dpt-resultado" style="font-size:13px;color:var(--tx2);line-height:1.7;min-height:100px">
+      <div style="text-align:center;padding:20px;color:var(--tx3);font-style:italic">Generando propuesta...</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn lt" style="flex:1;justify-content:center" onclick="closeMo()">Cerrar</button>
+    </div>
+  </div>`;
+  openMo();
+  const respuesta=await beniLlamarSilencioso('dpt_desde_historial',contexto,nombre);
+  const el=document.getElementById('beni-dpt-resultado');
+  if(el&&respuesta) el.innerHTML=respuesta.replace(/\n/g,'<br>');
+}
+
+// ── Señales de riesgo ─────────────────────────────────────────────────────
+async function beniSeñalesRiesgo(){
+  const hoy=td();
+  const equipo=C.team.filter(p=>p.on);
+  const resumen=equipo.map(p=>{
+    const hist=C.hist.filter(s=>s.p?.n===p.n);
+    const ls=hist[0];
+    const dias=ls?daysSince(ls.f):999;
+    const compromisosCumplidos=hist.filter(s=>(s.c?.c||[]).some(Boolean)).length;
+    const compromisosPendientes=ls?.c?.c?.filter(Boolean)||[];
+    const compromisosCR=ls?.c?.r?.filter(Boolean)||[];
+    // Detectar tendencia en notas (si hay 3+ sesiones, ¿se acortan?)
+    const longitudNotas=hist.slice(0,3).map(s=>Object.values(s.n||{}).join('').length);
+    return {
+      nombre:p.n,area:p.a,nivel:p.nv,
+      semaforo:semOf(p,ls)||'none',
+      dias_sin_sesion:dias,
+      total_sesiones:hist.length,
+      compromisos_pendientes_persona:compromisosPendientes,
+      compromisos_pendientes_responsable:compromisosCR,
+      tiene_proxima_programada:!!(ls?.prx&&ls.prx>=hoy),
+      tendencia_longitud_notas:longitudNotas
+    };
+  });
+  const alertasDetectadas=[];
+  resumen.forEach(r=>{
+    if(r.dias_sin_sesion>90) alertasDetectadas.push({nivel:'critico',persona:r.nombre,area:r.area,motivo:`${r.dias_sin_sesion} días sin sesión`});
+    else if(r.dias_sin_sesion>60) alertasDetectadas.push({nivel:'moderado',persona:r.nombre,area:r.area,motivo:`${r.dias_sin_sesion} días sin sesión`});
+    if(r.compromisos_pendientes_responsable.length>0&&r.total_sesiones>1)
+      alertasDetectadas.push({nivel:'moderado',persona:r.nombre,area:r.area,motivo:`Compromisos del responsable sin cerrar: ${r.compromisos_pendientes_responsable.join(', ')}`});
+  });
+
+  // Mostrar en banner del dashboard
+  const banner=document.getElementById('beni-alertas-banner');
+  const txt=document.getElementById('beni-alertas-txt');
+  if(banner) banner.style.display='block';
+  if(txt) txt.innerHTML='<em style="opacity:.5">Analizando señales...</em>';
+
+  const contexto={alertas_detectadas:alertasDetectadas,resumen_equipo:resumen,total:equipo.length,fecha:hoy};
+  const respuesta=await beniLlamarSilencioso('señales_riesgo',contexto,null);
+  if(txt&&respuesta) txt.innerHTML=respuesta.replace(/\n/g,'<br>');
+}
+
+// ── Motor silencioso (sin mostrar en Beni drawer) ───────────────────────────
+async function beniLlamarSilencioso(tipo,contexto,persona){
+  try{
+    const resp=await fetch(BENI_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':FAC_KEY},
+      body:JSON.stringify({tipo,contexto,persona,mensajes:[]})
+    });
+    const data=await resp.json();
+    return data.respuesta||null;
+  }catch(e){return null;}
+}
+
+
 
 </script>
 <!-- ═══ BENI ═══ -->
