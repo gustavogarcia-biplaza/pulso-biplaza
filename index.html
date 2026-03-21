@@ -248,7 +248,43 @@ textarea:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 3px rgba(21
 .hi-body.open{display:block}
 .hi-sec{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--tx3);margin:8px 0 5px}
 /* PROFILE */
-.prof-hero{background:var(--sb);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;box-shadow:var(--sh2)}
+.prof-tabs{display:flex;gap:2px;background:var(--sb);border-radius:var(--r2);padding:3px;margin-bottom:16px}
+.prof-tab-btn{flex:1;padding:7px 10px;border:none;background:transparent;border-radius:5px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.35);cursor:pointer;font-family:var(--f);transition:all 0.13s;text-align:center}
+.prof-tab-btn.active{background:var(--oro);color:var(--sb)}
+.prof-tab-btn:hover:not(.active){color:rgba(255,255,255,0.6)}
+/* ── BENI ── */
+#beni-fab{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;background:var(--oro);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--sb);box-shadow:0 4px 16px rgba(216,165,95,0.45);z-index:9998;transition:transform 0.15s,box-shadow 0.15s;font-family:var(--f)}
+#beni-fab:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(216,165,95,0.6)}
+#beni-fab.open{background:var(--sb);color:var(--oro);border:2px solid var(--oro)}
+#beni-drawer{position:fixed;top:0;right:-380px;width:360px;height:100vh;background:var(--wh);border-left:1px solid var(--bd);box-shadow:-4px 0 24px rgba(0,0,0,0.08);z-index:9997;transition:right 0.22s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column}
+#beni-drawer.open{right:0}
+#beni-hd{background:var(--sb);padding:16px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+#beni-title{flex:1;font-size:14px;font-weight:700;color:var(--oro);letter-spacing:0.3px}
+#beni-ctx-lbl{font-size:10.5px;color:rgba(255,255,255,0.4);margin-top:1px}
+#beni-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.beni-msg{max-width:88%;font-size:13px;line-height:1.6;padding:10px 13px;border-radius:12px;word-break:break-word}
+.beni-msg.user{align-self:flex-end;background:var(--oroL);color:var(--sb);border-radius:12px 12px 3px 12px}
+.beni-msg.beni{align-self:flex-start;background:var(--cream);color:var(--tx);border:1px solid var(--bd);border-radius:3px 12px 12px 12px}
+.beni-msg.beni b{color:var(--oroD)}
+.beni-msg.loading{opacity:0.5;font-style:italic;font-size:12px}
+.beni-chip{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;background:var(--cream);border:1px solid var(--bd);border-radius:20px;font-size:12px;font-weight:500;color:var(--tx);cursor:pointer;transition:all 0.12s;white-space:nowrap}
+.beni-chip:hover{border-color:var(--oro);color:var(--oroD);background:var(--oroL)}
+#beni-input-area{padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0;background:var(--wh)}
+#beni-input{width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 40px 9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--cream);outline:none;resize:none;line-height:1.4;box-sizing:border-box;transition:border-color 0.12s}
+#beni-input:focus{border-color:var(--oro)}
+#beni-send{position:absolute;right:22px;bottom:20px;width:28px;height:28px;border-radius:50%;background:var(--oro);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sb)}
+#beni-send:disabled{opacity:0.35;cursor:default}
+.beni-alerta{background:var(--cream);border:1px solid var(--bd);border-left:3px solid var(--oro);border-radius:var(--r2);padding:10px 14px;margin-bottom:8px;font-size:12.5px;color:var(--tx)}
+.beni-alerta .alerta-tipo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--oroD);margin-bottom:3px}
+/* ── DPT ── */
+.dpt-blk{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px;margin-bottom:12px;box-shadow:var(--sh)}
+.dpt-blk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dpt-blk-title{font-size:13px;font-weight:600;color:var(--tx)}
+.dpt-prog{height:4px;background:var(--cD);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.dpt-prog-bar{height:100%;background:var(--oro);border-radius:2px;transition:width 0.3s}
+.ctx-card{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh)}
+.ctx-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--tx3);margin-bottom:3px}
+.ctx-value{font-size:13px;font-weight:500;color:var(--tx)}
 .shi-item{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:8px;overflow:hidden;box-shadow:var(--sh)}
 .shi-hd{display:flex;align-items:center;padding:11px 15px;cursor:pointer;gap:8px}
 .shi-hd:hover{background:var(--cream)}
@@ -1220,11 +1256,15 @@ async function cerrarSesion(){
 function showLogin(){
   document.getElementById('login-screen').style.display='flex';
   document.querySelector('.app').style.display='none';
+  const fab=document.getElementById('beni-fab');
+  if(fab) fab.style.display='none';
 }
 
 function hideLogin(){
   document.getElementById('login-screen').style.display='none';
   document.querySelector('.app').style.display='flex';
+  const fab=document.getElementById('beni-fab');
+  if(fab) fab.style.display='flex';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1280,6 +1320,9 @@ async function initApp(user){
   document.getElementById('tb-title').textContent='Dashboard';
   rendDB();
   rendQS();
+
+  // ── Factorial: detectar cambios en segundo plano ─────────────────────────
+  setTimeout(()=>facDetectarCambios(), 2000);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1689,6 +1732,8 @@ function iniciar(){
   isFirstSes=prevSes.length===0;
   rendBloque(0);
   go('ses',null);
+  // Comprobar ausencias activas en Factorial (en segundo plano)
+  facAusenciasEnSesion(pAct.n);
   document.getElementById('tb-crumb').textContent='→ '+pAct.n+' · '+pAct.a+' · '+sesDateDisplay;
   // Pills shown during session — injected before the settings button
   const tbr=document.getElementById('tb-r');
@@ -2205,6 +2250,8 @@ async function guardar(){
     lh+=`<button class="bfull lt" onclick="openProfDirect('${pAct.n}')">Ver ficha de ${pAct.n}</button>`;
     if(main)main.innerHTML=lh;
     document.getElementById('ses-side').innerHTML='';
+    // Beni: análisis automático si el drawer está abierto
+    setTimeout(()=>beniAnalizarSesion(ses), 400);
   }catch(e){
     if(main)main.innerHTML=`<div style="padding:40px;text-align:center"><div style="font-size:14px;color:var(--red);margin-bottom:12px">Error al guardar: ${e.message}</div><button class="btn dk" onclick="guardar()">Reintentar</button></div>`;
   }
@@ -2251,6 +2298,22 @@ function openProfDirect(name){
   go('prof',document.getElementById('ni-prof'));
 }
 
+// ── Estado de tab activo en la ficha ────────────────────────────────────────
+let profTabAct='oto'; // 'oto' | 'dpt' | 'ctx' | 'dev'
+
+function profTab(tab){
+  profTabAct=tab;
+  ['oto','dpt','ctx','dev'].forEach(t=>{
+    const btn=document.getElementById('pt-'+t);
+    const body=document.getElementById('ptb-'+t);
+    if(btn) btn.className='prof-tab-btn'+(t===tab?' active':'');
+    if(body) body.style.display=t===tab?'block':'none';
+  });
+  // Cargar datos del tab si es necesario
+  if(tab==='dpt') rendProfDPT();
+  if(tab==='ctx') rendProfCtx();
+}
+
 function rendProf(){
   if(!profPerson)return;
   const p=profPerson;
@@ -2269,7 +2332,10 @@ function rendProf(){
   h+=`<div class="av-lg">${ini(p.n)}</div>`;
   h+=`<div style="flex:1"><div style="font-size:22px;font-weight:500;color:var(--wh)">${p.n}</div><div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:3px">${p.a} · <span style="color:var(--oro);font-weight:600">${p.nv}</span></div>`;
   h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span class="pill p-${st}">${semLbl(p,ls)}</span><span class="pill p-gray">${hist.length} sesión${hist.length!==1?'es':''}</span>${prog.length?`<span class="pill p-amb">Próxima: ${fmtD(prog[0].fecha)}</span>`:''}</div></div>`;
-  h+=`<button class="btn go" style="padding:9px 16px;flex-shrink:0" onclick="quickStart('${p.n}')">Iniciar →</button>`;
+  h+=`<div style="display:flex;gap:8px;align-items:center;flex-shrink:0">`;
+  h+=`<button class="btn lt" style="padding:7px 12px;font-size:12px" onclick="beniPrep('${p.n}');if(!_beniOpen)beniToggle()">✦ Preparar</button>`;
+  h+=`<button class="btn go" style="padding:9px 16px" onclick="quickStart('${p.n}')">Iniciar →</button>`;
+  h+=`</div>`;
   h+=`</div>`;
   if(hist.length>1){
     h+=`<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:20px">`;
@@ -2280,7 +2346,17 @@ function rendProf(){
   }
   h+=`</div>`;
 
-  h+=`<div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;margin-top:16px">`;
+  // ── TABS ─────────────────────────────────────────────────────────────────
+  h+=`<div class="prof-tabs">
+    <button class="prof-tab-btn${profTabAct==='oto'?' active':''}" id="pt-oto" onclick="profTab('oto')">One-to-One</button>
+    <button class="prof-tab-btn${profTabAct==='dpt'?' active':''}" id="pt-dpt" onclick="profTab('dpt')">DPT</button>
+    <button class="prof-tab-btn${profTabAct==='ctx'?' active':''}" id="pt-ctx" onclick="profTab('ctx')">Contexto</button>
+    <button class="prof-tab-btn${profTabAct==='dev'?' active':''}" id="pt-dev" onclick="profTab('dev')">Desarrollo</button>
+  </div>`;
+
+  // ── TAB ONE-TO-ONE ────────────────────────────────────────────────────────
+  h+=`<div id="ptb-oto" style="display:${profTabAct==='oto'?'block':'none'}">`;
+  h+=`<div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;margin-top:0">`;
 
   // LEFT
   h+=`<div>`;
@@ -2357,13 +2433,156 @@ function rendProf(){
     if(allCR.length){h+=`<div style="font-size:10px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin:7px 0 5px">Responsable</div>`;h+=allCR.slice(0,4).map(x=>`<div style="display:flex;gap:5px;padding:4px 0;border-bottom:1px solid var(--cD);font-size:12px;color:var(--tx2)"><span style="color:var(--oro);flex-shrink:0">·</span><div><div>${x.txt}</div><div style="font-size:10px;color:var(--tx4)">${x.f}</div></div></div>`).join('');}
     h+=`</div>`;
   }
-  h+=`</div>`;
-  h+=`</div>`;
+  h+=`</div>`; // close right col
+  h+=`</div>`; // close grid
+  h+=`</div>`; // close tab ONE-TO-ONE
+
+  // ── TAB DPT ──────────────────────────────────────────────────────────────
+  h+=`<div id="ptb-dpt" style="display:${profTabAct==='dpt'?'block':'none'}">
+    <div id="dpt-content"><div style="text-align:center;padding:40px;color:var(--tx3);font-size:13px">Cargando DPT...</div></div>
+  </div>`;
+
+  // ── TAB CONTEXTO ─────────────────────────────────────────────────────────
+  h+=`<div id="ptb-ctx" style="display:${profTabAct==='ctx'?'block':'none'}">
+    <div id="ctx-content"><div style="text-align:center;padding:40px;color:var(--tx3);font-size:13px">Cargando datos de Factorial...</div></div>
+  </div>`;
+
+  // ── TAB DESARROLLO ────────────────────────────────────────────────────────
+  h+=`<div id="ptb-dev" style="display:${profTabAct==='dev'?'block':'none'}">
+    <div class="ibox" style="padding:32px;text-align:center">
+      <div style="font-size:28px;margin-bottom:12px">🌱</div>
+      <div style="font-size:14px;font-weight:500;color:var(--tx);margin-bottom:6px">Próximamente</div>
+      <div style="font-size:12.5px;color:var(--tx3);line-height:1.6;max-width:280px;margin:0 auto">
+        Ruta de desarrollo ${p.nv}→${p.nv==='N1'?'N2':p.nv==='N2'?'N3':'Senior'}, hitos y objetivos de largo plazo.
+      </div>
+    </div>
+  </div>`;
+
   document.getElementById('prof-c').innerHTML=h;
+  // Cargar tab activo si necesita datos async
+  if(profTabAct==='dpt') rendProfDPT();
+  if(profTabAct==='ctx') rendProfCtx();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  CALENDAR
+// ── Tab DPT: 3 bloques + guardado incremental ───────────────────────────────
+async function rendProfDPT(){
+  const el=document.getElementById('dpt-content');
+  if(!el) return;
+  const p=profPerson;
+  let dpt={bloque_1:{},bloque_2:{},bloque_3:{},completitud:0,id:null};
+  try{
+    const pid=C.pmap[p.n]?.id;
+    if(pid){const {data}=await sb.from('dpt').select('*').eq('persona_id',pid).maybeSingle();if(data)dpt={...dpt,...data};}
+  }catch(e){console.warn('DPT load',e);}
+  const b1=dpt.bloque_1||{},b2=dpt.bloque_2||{},b3=dpt.bloque_3||{};
+  const campos=[b1.cargo,b1.objetivo,b1.funciones,b2.formacion,b2.competencias_tecnicas,b2.competencias_transversales,b3.camino,b3.que_debe_demostrar];
+  const pct=Math.round((campos.filter(x=>x&&x.trim&&x.trim().length>0).length/campos.length)*100);
+  const fi=(id,val,ph,fn)=>`<input id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:8px 11px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--cream);outline:none;box-sizing:border-box" oninput="${fn}" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">`;
+  const ta=(id,val,ph,rows,fn)=>`<textarea id="${id}" rows="${rows}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:8px 11px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--cream);resize:vertical;outline:none;box-sizing:border-box;line-height:1.5" oninput="${fn}" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">${val||''}</textarea>`;
+  const lbl=(t)=>`<label style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px">${t}</label>`;
+  const blkOk=(ok)=>`<span style="font-size:11px;color:${ok?'var(--ok)':'var(--tx4)'}">${ok?'✓ Completo':'Incompleto'}</span>`;
+  const blkHd=(num,title,sub,ok)=>`<div class="dpt-blk-hd"><div><div class="dpt-blk-title">${num} · ${title}</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">${sub}</div></div>${blkOk(ok)}</div>`;
+
+  let h=`<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <span style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px">DPT · ${p.n}</span>
+    <span style="font-size:12px;font-weight:700;color:${pct===100?'var(--ok)':pct>50?'var(--oroD)':'var(--tx3)'}" id="dpt-pct-lbl">${pct}% completada</span>
+    </div><div class="dpt-prog"><div class="dpt-prog-bar" id="dpt-pct-bar" style="width:${pct}%"></div></div></div>`;
+
+  h+=`<div class="dpt-blk">${blkHd('1','El puesto','Cargo, objetivo y funciones principales',!!(b1.cargo&&b1.objetivo&&b1.funciones))}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>${lbl('Denominación del cargo')}${fi('dpt-cargo',b1.cargo,'Ej: Asesor/a Contable N1',"dptGuardar('1')")}</div>
+      <div>${lbl('Objetivo general del puesto')}${ta('dpt-objetivo',b1.objetivo,'¿Para qué existe este puesto?',3,"dptGuardar('1')")}</div>
+      <div>${lbl('Funciones y tareas principales')}${ta('dpt-funciones',b1.funciones,'Lista las funciones más relevantes...',4,"dptGuardar('1')")}</div>
+    </div></div>`;
+
+  h+=`<div class="dpt-blk">${blkHd('2','El perfil','Formación y competencias necesarias',!!(b2.formacion&&b2.competencias_tecnicas))}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>${lbl('Formación requerida')}${fi('dpt-formacion',b2.formacion,'Ej: FP Grado Superior Administración y Finanzas',"dptGuardar('2')")}</div>
+      <div>${lbl('Competencias técnicas')}${ta('dpt-comp-tec',b2.competencias_tecnicas,'Conocimientos técnicos necesarios...',3,"dptGuardar('2')")}</div>
+      <div>${lbl('Competencias transversales')}${ta('dpt-comp-tra',b2.competencias_transversales,'Comunicación, trabajo en equipo...',3,"dptGuardar('2')")}</div>
+    </div></div>`;
+
+  h+=`<div class="dpt-blk">${blkHd('3','El desarrollo','Camino de crecimiento y oportunidades',!!(b3.camino&&b3.que_debe_demostrar))}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>${lbl('Camino de evolución natural')}${fi('dpt-camino',b3.camino,'Ej: Asesor/a Contable N2',"dptGuardar('3')")}</div>
+      <div>${lbl('Qué debe demostrar para avanzar')}${ta('dpt-demostrar',b3.que_debe_demostrar,'Capacidades y logros que marcan el paso al siguiente nivel...',3,"dptGuardar('3')")}</div>
+      <div>${lbl('Observaciones')}${ta('dpt-obs',b3.observaciones,'Contexto relevante del puesto...',2,"dptGuardar('3')")}</div>
+    </div></div>`;
+
+  el.dataset.dptId=dpt.id||'';
+  el.dataset.personaId=C.pmap[p.n]?.id||'';
+  el.innerHTML=h;
+}
+
+let _dptTimer=null;
+function dptGuardar(bloque){clearTimeout(_dptTimer);_dptTimer=setTimeout(()=>dptGuardarNow(bloque),800);}
+
+async function dptGuardarNow(){
+  const el=document.getElementById('dpt-content');
+  if(!el) return;
+  const personaId=el.dataset.personaId;
+  if(!personaId) return;
+  const g=(id)=>document.getElementById(id)?.value||'';
+  const b1={cargo:g('dpt-cargo'),objetivo:g('dpt-objetivo'),funciones:g('dpt-funciones')};
+  const b2={formacion:g('dpt-formacion'),competencias_tecnicas:g('dpt-comp-tec'),competencias_transversales:g('dpt-comp-tra')};
+  const b3={camino:g('dpt-camino'),que_debe_demostrar:g('dpt-demostrar'),observaciones:g('dpt-obs')};
+  const campos=[b1.cargo,b1.objetivo,b1.funciones,b2.formacion,b2.competencias_tecnicas,b2.competencias_transversales,b3.camino,b3.que_debe_demostrar];
+  const pct=Math.round((campos.filter(x=>x.trim().length>0).length/campos.length)*100);
+  const {data:{user}}=await sb.auth.getUser();
+  const payload={persona_id:personaId,bloque_1:b1,bloque_2:b2,bloque_3:b3,completitud:pct,updated_by:user?.id};
+  try{
+    const dptId=el.dataset.dptId;
+    if(dptId){await sb.from('dpt').update(payload).eq('id',dptId);}
+    else{const {data}=await sb.from('dpt').insert(payload).select().single();if(data)el.dataset.dptId=data.id;}
+    const bar=document.getElementById('dpt-pct-bar');
+    const lbl=document.getElementById('dpt-pct-lbl');
+    if(bar)bar.style.width=pct+'%';
+    if(lbl){lbl.textContent=pct+'% completada';lbl.style.color=pct===100?'var(--ok)':pct>50?'var(--oroD)':'var(--tx3)';}
+  }catch(e){console.warn('DPT save',e);}
+}
+
+// ── Tab Contexto: datos de Factorial (read-only) ─────────────────────────────
+async function rendProfCtx(){
+  const el=document.getElementById('ctx-content');
+  if(!el) return;
+  const p=profPerson;
+  const [emps,leaves]=await Promise.all([facCall('employees'),facCall('leaves')]);
+  const emp=emps?.find(e=>{
+    const n=((e.first_name||'')+' '+(e.last_name||'')).trim().toLowerCase();
+    return p.n.toLowerCase().split(' ').some(w=>w.length>2&&n.includes(w));
+  });
+  if(!emp){
+    el.innerHTML=`<div class="ibox" style="padding:28px;text-align:center"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:13px;color:var(--tx3)">No se encontró a <b>${p.n}</b> en Factorial.</div><button class="btn lt" style="margin-top:12px;font-size:12px" onclick="syncFactorial()">Sincronizar equipo</button></div>`;
+    return;
+  }
+  const hoy=new Date().toISOString().split('T')[0];
+  const ausencias=leaves?.filter(l=>{
+    const empN=((l.employee_first_name||l.first_name||'')+' '+(l.employee_last_name||l.last_name||'')).trim().toLowerCase();
+    const coincide=p.n.toLowerCase().split(' ').some(w=>w.length>2&&empN.includes(w));
+    return coincide&&(l.status==='approved'||l.status==='active')&&l.start_on<=hoy&&(!l.finish_on||l.finish_on>=hoy);
+  })||[];
+  const inicio=emp.hired_on||emp.start_date||emp.created_at?.split('T')[0];
+  let ant='—';
+  if(inicio){const m=Math.floor((new Date()-new Date(inicio))/(1000*60*60*24*30.44));ant=m>=12?`${Math.floor(m/12)} año${Math.floor(m/12)!==1?'s':''}${m%12>0?' '+m%12+'m':''}`:`${m} meses`;}
+  const card=(icon,lbl,val)=>`<div class="ctx-card"><div class="ctx-label">${icon} ${lbl}</div><div class="ctx-value">${val}</div></div>`;
+  let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    ${card('💼','Cargo en Factorial',emp.job_title||emp.position||p.a||'—')}
+    ${card('📅','Antigüedad',ant)}
+    ${card('👥','Equipo / Área',emp.team_name||emp.department_name||'—')}
+    ${card('✉️','Email',`<a href="mailto:${emp.email||''}" style="color:var(--oroD);text-decoration:none">${emp.email||'—'}</a>`)}
+  </div>`;
+  if(ausencias.length){
+    h+=`<div class="ibox" style="padding:14px 16px;border-left:3px solid var(--oro);margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Ausencia activa</div>`;
+    ausencias.forEach(l=>{const tipo=l.leave_type_name||'Ausencia';const desde=l.start_on?l.start_on.split('-').reverse().join('/'):'';const hasta=l.finish_on?l.finish_on.split('-').reverse().join('/'):'en curso';h+=`<div style="font-size:13px;color:var(--tx)"><b>${tipo}</b> · ${desde} – ${hasta}</div>`;});
+    h+=`</div>`;
+  }else{
+    h+=`<div class="ibox" style="padding:12px 16px;background:var(--cream)"><div style="font-size:12px;color:var(--tx3)">✓ Sin ausencias activas</div></div>`;
+  }
+  h+=`<div style="margin-top:8px;font-size:10.5px;color:var(--tx4);text-align:right">Datos de Factorial · Solo lectura</div>`;
+  el.innerHTML=h;
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════
 function rendCal(){
   const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -2422,57 +2641,100 @@ async function toggleOn(i){
   rendTM();
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  FACTORIAL — Integración de lectura (visión, no gestión)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FAC_PROXY='https://lpxvatcwkerrrokrwwqt.supabase.co/functions/v1/factorial-proxy';
+const FAC_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweHZhdGN3a2VycnJva3J3d3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTcwMDgsImV4cCI6MjA4OTU3MzAwOH0.or9l-I4qhwpcbQwuKYdeyJZbL-wauyExZmpEwPq7pcA';
+
+async function facCall(endpoint, params={}){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session) return null;
+  const qs=new URLSearchParams({endpoint,...params}).toString();
+  try{
+    const resp=await fetch(`${FAC_PROXY}?${qs}`,{
+      headers:{'Authorization':`Bearer ${session.access_token}`,'apikey':FAC_KEY}
+    });
+    if(!resp.ok) return null;
+    const data=await resp.json();
+    return Array.isArray(data)?data:(data.data||data.employees||data.leaves||data.resources||null);
+  }catch(e){ return null; }
+}
+
+// ── FUNCIÓN 1: Detectar personas nuevas en Factorial ────────────────────────
+async function facDetectarCambios(){
+  const emps=await facCall('employees');
+  if(!emps||!emps.length) return;
+  const nombresActivos=C.team.filter(p=>p.on).map(p=>p.n.toLowerCase().trim());
+  const nuevos=emps.filter(e=>{
+    if(e.terminated_on) return false; // excluir bajas
+    const n=((e.first_name||'')+' '+(e.last_name||'')).trim().toLowerCase();
+    return n && !nombresActivos.some(x=>x===n||x.startsWith(n.split(' ')[0]));
+  });
+  if(!nuevos.length) return;
+  const nombres=nuevos.map(e=>((e.first_name||'')+' '+(e.last_name||'')).trim());
+  const tbr=document.getElementById('tb-r');
+  if(!tbr||document.getElementById('fac-notif')) return;
+  const notif=document.createElement('div');
+  notif.id='fac-notif';
+  notif.style.cssText='display:flex;align-items:center;gap:7px;background:rgba(216,165,95,0.1);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r2);padding:5px 11px;font-size:12px;color:var(--oroD);cursor:pointer;white-space:nowrap';
+  notif.innerHTML=`<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" stroke-width="2"/></svg>${nombres.length} nuevo${nombres.length>1?'s':''} en Factorial`;
+  notif.title=nombres.join(', ');
+  notif.onclick=()=>{
+    if(confirm(`¿Añadir a PULSO?\n\n${nombres.join('\n')}\n\nSe añadirán con nivel N1. Puedes editarlos después en Gestionar equipo.`)){
+      syncFactorial();
+    }
+    notif.remove();
+  };
+  const btn=tbr.querySelector('button');
+  if(btn) tbr.insertBefore(notif,btn); else tbr.appendChild(notif);
+}
+
+// ── FUNCIÓN 2: Mostrar ausencias activas al iniciar sesión ──────────────────
+async function facAusenciasEnSesion(nombrePersona){
+  const hoy=new Date().toISOString().split('T')[0];
+  const leaves=await facCall('leaves');
+  if(!leaves||!leaves.length) return;
+  const activas=leaves.filter(l=>{
+    const empNombre=((l.employee_first_name||l.first_name||'')+' '+(l.employee_last_name||l.last_name||'')).trim().toLowerCase();
+    const coincide=nombrePersona.toLowerCase().split(' ').some(w=>w.length>2&&empNombre.includes(w));
+    const vigente=(l.status==='approved'||l.status==='active')&&l.start_on<=hoy&&(!l.finish_on||l.finish_on>=hoy);
+    return coincide&&vigente;
+  });
+  if(!activas.length) return;
+  // Mostrar banner discreto en la sesión
+  const sesSide=document.getElementById('ses-side');
+  if(!sesSide||document.getElementById('fac-ausencia')) return;
+  const tipo=activas[0].leave_type_name||activas[0].leave_reason||'Ausencia';
+  const desde=activas[0].start_on?activas[0].start_on.split('-').reverse().join('/'):'';
+  const banner=document.createElement('div');
+  banner.id='fac-ausencia';
+  banner.style.cssText='background:rgba(216,165,95,0.08);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:8px 12px;margin:0 0 10px;font-size:11.5px;color:var(--oroD);display:flex;align-items:center;gap:7px';
+  banner.innerHTML=`<svg width="13" height="13" fill="none" stroke="var(--oro)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke-width="2"/></svg><span><b>Factorial:</b> ${tipo}${desde?' desde el '+desde:''}</span>`;
+  sesSide.insertBefore(banner, sesSide.firstChild);
+}
+
 async function syncFactorial(){
   const st=document.getElementById('sync-st');
   if(st){st.textContent='Conectando con Factorial...';st.className='sync-st idle';}
 
-  // URL fija de la Edge Function — no requiere configuración manual
-  const PROXY='https://lpxvatcwkerrrokrwwqt.supabase.co/functions/v1/factorial-proxy';
-
-  // Obtener el JWT de sesión actual para autenticar la llamada
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){
-    if(st){st.textContent='Error: no hay sesión activa. Inicia sesión primero.';st.className='sync-st err';}
+  const emps=await facCall('employees');
+  if(!emps||!emps.length){
+    if(st){st.textContent='Sin respuesta de Factorial. Verifica la API key.';st.className='sync-st err';}
     return;
   }
 
-  let emps=[];let lastErr='';
-
-  // Probar endpoints v2 y v1
-  const endpoints=['employees'];
-  for(const ep of endpoints){
-    try{
-      const resp=await fetch(`${PROXY}?endpoint=${ep}`,{
-        method:'GET',
-        headers:{
-          'Authorization':`Bearer ${session.access_token}`,
-          'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweHZhdGN3a2VycnJva3J3d3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTcwMDgsImV4cCI6MjA4OTU3MzAwOH0.or9l-I4qhwpcbQwuKYdeyJZbL-wauyExZmpEwPq7pcA'
-        }
-      });
-      if(!resp.ok){lastErr='HTTP '+resp.status;continue;}
-      const data=await resp.json();
-      const arr=Array.isArray(data)?data:(data.data||data.employees||data.resources||[]);
-      if(arr.length){emps=arr;break;}
-      lastErr='Respuesta vacía';
-    }catch(e){lastErr=e.message;}
-  }
-
-  if(!emps.length){
-    if(st){st.textContent='Error: '+lastErr;st.className='sync-st err';}
-    return;
-  }
-
-  // Actualizar equipo en Supabase
   let added=0,updated=0;
   for(const e of emps){
-    const first=(e.first_name||e.firstName||'').trim();
-    const last=(e.last_name||e.lastName||'').trim();
-    const nombre=(first+' '+last).trim()||e.full_name||e.fullName||e.name||'';
-    if(!nombre)continue;
-    const area=e.team||e.department||e.team_name||e.department_name||'Sin área';
+    if(e.terminated_on) continue; // excluir bajas
+    const first=(e.first_name||'').trim();
+    const last=(e.last_name||'').trim();
+    const nombre=(first+' '+last).trim()||e.full_name||e.name||'';
+    if(!nombre) continue;
+    const area=e.team_name||e.department_name||e.team||e.department||'Sin área';
     const existing=C.pmap[nombre];
     if(existing){
-      // Actualizar área si no tiene
       if(!existing.a||existing.a==='Sin área'){
         await savePersona_db({...existing,a:area});
         updated++;
@@ -2485,9 +2747,16 @@ async function syncFactorial(){
 
   rendTM();
   if(st){
-    st.textContent=`✓ Sincronizado: ${added} añadida${added!==1?'s':''}, ${updated} actualizada${updated!==1?'s':''} · ${emps.length} empleados en Factorial`;
+    if(added||updated){
+      st.textContent=`✓ ${added} añadida${added!==1?'s':''}, ${updated} actualizada${updated!==1?'s':''} · ${emps.length} en Factorial`;
+    }else{
+      st.textContent=`✓ Equipo al día · ${emps.length} personas en Factorial`;
+    }
     st.className='sync-st ok';
   }
+  // Limpiar la notificación si estaba visible
+  const notif=document.getElementById('fac-notif');
+  if(notif) notif.remove();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2809,6 +3078,186 @@ sb.auth.onAuthStateChange(async(event,session)=>{
   }
 })();
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  BENI — Copiloto IA
+// ═══════════════════════════════════════════════════════════════════════════
+
+const BENI_URL='https://lpxvatcwkerrrokrwwqt.supabase.co/functions/v1/beni';
+let _beniOpen=false;
+let _beniMsgs=[];
+let _beniCtx={tipo:'libre',persona:null,contexto:{}};
+
+function beniToggle(){
+  _beniOpen=!_beniOpen;
+  document.getElementById('beni-drawer').classList.toggle('open',_beniOpen);
+  document.getElementById('beni-fab').classList.toggle('open',_beniOpen);
+  if(_beniOpen&&_beniMsgs.length===0) beniBienvenida();
+}
+
+function beniBienvenida(){
+  const enFicha=!!profPerson;
+  const enSesion=!!pAct&&document.getElementById('s-ses')?.style.display!=='none';
+  const nombre=enFicha?profPerson?.n:enSesion?pAct?.n:null;
+  let saludo=`Hola. ¿En qué puedo ayudarte?`;
+  if(nombre&&enFicha) saludo=`Estás en la ficha de <b>${nombre}</b>. ¿Qué necesitas?`;
+  if(nombre&&enSesion) saludo=`Sesión en curso con <b>${nombre}</b>. ¿Te preparo algo?`;
+  let chips=`<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px">`;
+  if(nombre){
+    chips+=`<span class="beni-chip" onclick="beniPrep('${nombre}')">📋 Preparar sesión</span>`;
+    chips+=`<span class="beni-chip" onclick="beniDPT('${nombre}')">📄 Asistente DPT</span>`;
+  }
+  chips+=`<span class="beni-chip" onclick="beniAlertas()">⚠️ Ver alertas</span>`;
+  chips+=`<span class="beni-chip" onclick="beniOrg()">📊 Estado del equipo</span>`;
+  chips+=`</div>`;
+  const msgsEl=document.getElementById('beni-msgs');
+  if(msgsEl) msgsEl.innerHTML=`<div class="beni-msg beni">${saludo}${chips}</div>`;
+  beniUpdateCtxLbl(nombre);
+}
+
+function beniUpdateCtxLbl(nombre){
+  const lbl=document.getElementById('beni-ctx-lbl');
+  if(lbl) lbl.textContent=nombre?`Contexto: ${nombre}`:'Copiloto de Personas & Cultura';
+}
+
+async function beniEnviar(){
+  const inp=document.getElementById('beni-input');
+  const txt=(inp?.value||'').trim();
+  if(!txt) return;
+  inp.value='';
+  beniAddMsg('user',txt);
+  // Contexto libre: si hay persona activa en pantalla, se lo pasamos
+  const nombre=profPerson?.n||pAct?.n||null;
+  const contexto=nombre?{persona:nombre,area:C.pmap[nombre]?.a,pregunta:txt,historial:C.hist.filter(s=>s.p?.n===nombre).slice(0,5).map(s=>({fecha:s.f,notas:Object.values(s.n||{}).filter(Boolean).join(' | '),compromisos:s.c?.c?.filter(Boolean)||[]}))}:{pregunta:txt,total_equipo:C.team.filter(p=>p.on).length};
+  await beniLlamar('libre',contexto,nombre,[..._beniMsgs.slice(-6)]);
+}
+
+async function beniPrep(nombre){
+  beniUpdateCtxLbl(nombre);
+  beniAddMsg('user',`Prepárame la sesión con ${nombre}`);
+  const p=C.pmap[nombre];
+  const hist=C.hist.filter(s=>s.p?.n===nombre).slice(0,5);
+  const prog=C.prog.filter(x=>x.persona===nombre&&x.fecha>=td()).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const contexto={
+    persona:{nombre,area:p?.a,nivel:p?.nv,semaforo:semOf(p,hist[0])||'none'},
+    total_sesiones:hist.length,
+    ultima_sesion:hist[0]?{fecha:hist[0].f,compromisos_persona:hist[0].c?.c?.filter(Boolean)||[],compromisos_responsable:hist[0].c?.r?.filter(Boolean)||[],notas:Object.values(hist[0].n||{}).filter(Boolean).join(' | ')}:null,
+    proxima_programada:prog[0]?.fecha||null,
+    historial_resumido:hist.slice(1,4).map(s=>({fecha:s.f,compromisos:s.c?.c?.filter(Boolean)||[]}))
+  };
+  await beniLlamar('preparar_sesion',contexto,nombre,[]);
+}
+
+async function beniDPT(nombre){
+  _beniMsgs=[];
+  beniUpdateCtxLbl(nombre);
+  beniAddMsg('user',`Ayúdame a completar la DPT de ${nombre}`);
+  const contexto={persona:nombre,area:C.pmap[nombre]?.a,nivel:C.pmap[nombre]?.nv};
+  await beniLlamar('asistente_dpt',contexto,nombre,[]);
+}
+
+async function beniAlertas(){
+  beniAddMsg('user','¿Qué merece atención ahora mismo?');
+  const hoy=td();
+  const alertas=[];
+  C.team.filter(p=>p.on).forEach(p=>{
+    const hist=C.hist.filter(s=>s.p?.n===p.n);
+    const ls=hist[0];
+    const dias=ls?daysSince(ls.f):999;
+    if(dias>90) alertas.push({tipo:'sin_sesion_90d',persona:p.n,area:p.a,dias});
+    else if(dias>60) alertas.push({tipo:'sin_sesion_60d',persona:p.n,area:p.a,dias});
+    if(ls?.prx&&ls.prx<hoy){const dv=daysBetween(ls.prx,hoy);if(dv>14)alertas.push({tipo:'prox_vencida',persona:p.n,area:p.a,dias_vencida:dv});}
+    const cc=ls?.c?.c?.filter(Boolean)||[];
+    if(cc.length&&!ls?.prx) alertas.push({tipo:'compromisos_sin_seguimiento',persona:p.n,area:p.a,compromisos:cc.length});
+  });
+  await beniLlamar('alerta',{alertas,total_equipo:C.team.filter(p=>p.on).length,fecha_hoy:hoy},null,[]);
+}
+
+async function beniOrg(){
+  beniAddMsg('user','Dame el estado general del equipo');
+  const equipo=C.team.filter(p=>p.on);
+  const resumen=equipo.map(p=>{
+    const hist=C.hist.filter(s=>s.p?.n===p.n);
+    const ls=hist[0];
+    return{nombre:p.n,area:p.a,nivel:p.nv,semaforo:semOf(p,ls)||'none',dias_sin_sesion:ls?daysSince(ls.f):null,total_sesiones:hist.length};
+  });
+  const porArea={};
+  resumen.forEach(r=>{if(!porArea[r.area])porArea[r.area]=[];porArea[r.area].push(r);});
+  await beniLlamar('organizacion',{resumen_equipo:resumen,por_area:porArea,total:equipo.length,fecha:td()},null,[]);
+}
+
+async function beniLlamar(tipo,contexto,persona,mensajes){
+  const loadId='bl'+Date.now();
+  beniAddMsg('beni','<em style="opacity:.5;font-size:12px">Pensando...</em>',loadId);
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){beniReplaceMsg(loadId,'Error: no hay sesión activa.');return '';}
+  try{
+    const resp=await fetch(BENI_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`,'apikey':FAC_KEY},
+      body:JSON.stringify({tipo,contexto,persona,mensajes})
+    });
+    const data=await resp.json();
+    if(!resp.ok||data.error){beniReplaceMsg(loadId,`Error: ${data.error||'Sin respuesta de Beni'}`);return '';}
+    const txt=data.respuesta||'';
+    beniReplaceMsg(loadId,txt.replace(/\n/g,'<br>'));
+    _beniMsgs.push({role:'assistant',content:txt});
+    // Persistir en Supabase en segundo plano
+    (async()=>{try{const {data:{user}}=await sb.auth.getUser();if(!user)return;const pid=persona?C.pmap[persona]?.id:null;await sb.from('beni_conversaciones').insert({usuario_id:user.id,persona_id:pid||null,tipo,contexto,mensajes:_beniMsgs.slice(-20)});}catch(e){console.warn('Beni persist',e);}})();
+    return txt;
+  }catch(e){beniReplaceMsg(loadId,'Error conectando con Beni.');return '';}
+}
+
+function beniAddMsg(role,html,id){
+  const el=document.getElementById('beni-msgs');
+  if(!el) return;
+  const div=document.createElement('div');
+  div.className=`beni-msg ${role}`;
+  if(id) div.id=id;
+  div.innerHTML=html;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+  if(role==='user') _beniMsgs.push({role:'user',content:html});
+}
+
+function beniReplaceMsg(id,html){
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=html;
+  const msgs=document.getElementById('beni-msgs');
+  if(msgs) msgs.scrollTop=msgs.scrollHeight;
+}
+
+// Llamada desde guardar() tras salvar sesión
+async function beniAnalizarSesion(ses){
+  if(!_beniOpen) return; // Solo si Beni está abierto
+  const hist=C.hist.filter(s=>s.p?.n===ses.p.n).slice(1,6); // sesiones previas
+  const contexto={
+    sesion_actual:{persona:ses.p.n,area:ses.p.a,nivel:ses.p.nv,fecha:ses.f,primera:ses.first,compromisos_persona:ses.c?.c?.filter(Boolean)||[],compromisos_responsable:ses.c?.r?.filter(Boolean)||[],proxima:ses.prx||null,notas:Object.values(ses.n||{}).filter(Boolean).join(' | ')},
+    historial_anterior:hist.map(s=>({fecha:s.f,compromisos:s.c?.c?.filter(Boolean)||[],notas:Object.values(s.n||{}).filter(Boolean).join(' | ')}))
+  };
+  beniUpdateCtxLbl(ses.p.n);
+  await beniLlamar('analisis_sesion',contexto,ses.p.n,[]);
+}
+
 </script>
+<!-- ═══ BENI ═══ -->
+<button id="beni-fab" onclick="beniToggle()" title="Beni · Copiloto IA" style="display:none">✦</button>
+
+<div id="beni-drawer">
+  <div id="beni-hd">
+    <div>
+      <div id="beni-title">✦ BENI</div>
+      <div id="beni-ctx-lbl">Copiloto de Personas & Cultura</div>
+    </div>
+    <button onclick="beniToggle()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;padding:2px 6px;line-height:1">×</button>
+  </div>
+  <div id="beni-msgs"></div>
+  <div id="beni-input-area" style="position:relative">
+    <textarea id="beni-input" rows="2" placeholder="Pregunta a Beni..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();beniEnviar();}"></textarea>
+    <button id="beni-send" onclick="beniEnviar()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke-width="2"/></svg>
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
