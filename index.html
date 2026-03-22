@@ -1293,19 +1293,18 @@ async function saveH_db(sesObj){
 
 async function saveP_db(persona,fecha,hora=null){
   const pid=C.pmap[persona]?.id;
-  if(!pid)return null;
+  if(!pid) throw new Error('Persona no encontrada: '+persona);
   const payload={persona_id:pid,fecha};
   if(hora) payload.hora=hora;
   const {data,error}=await sb.from('programaciones')
     .upsert(payload,{onConflict:'persona_id,fecha'})
     .select('id').single();
-  if(!error){
-    if(!C.prog.find(x=>x.persona===persona&&x.fecha===fecha))
-      C.prog.push({persona,fecha,hora,id:data?.id});
-    else{
-      const e=C.prog.find(x=>x.persona===persona&&x.fecha===fecha);
-      if(e){e.hora=hora;e.id=data?.id;}
-    }
+  if(error) throw new Error(error.message);
+  if(!C.prog.find(x=>x.persona===persona&&x.fecha===fecha))
+    C.prog.push({persona,fecha,hora,id:data?.id});
+  else{
+    const e=C.prog.find(x=>x.persona===persona&&x.fecha===fecha);
+    if(e){e.hora=hora;e.id=data?.id;}
   }
   return data?.id||null;
 }
@@ -3355,16 +3354,18 @@ async function saveProg(){
   const h=document.getElementById('modal-hora')?.value||null;
   if(!p||!f)return;
 
-  // Deshabilitar botón mientras guarda
   const btn=document.querySelector('[onclick="saveProg()"]');
   if(btn){btn.disabled=true;btn.textContent='Guardando...';}
 
-  const progId=await saveP_db(p,f,h);
-  closeModal();rendCal();rendDB();
-
-  // Si Outlook conectado y hay hora, crear evento en segundo plano
-  if(progId && h && C.outlook?.connected){
-    outlookCrearEvento(p,f,h,progId).catch(()=>{});
+  try{
+    const progId=await saveP_db(p,f,h);
+    closeModal();rendCal();rendDB();
+    if(progId && h && C.outlook?.connected){
+      outlookCrearEvento(p,f,h,progId).catch(()=>{});
+    }
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Guardar';}
+    alert('Error al programar: '+e.message);
   }
 }
 
