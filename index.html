@@ -923,25 +923,34 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
 
       <!-- TAB 3: Plantillas -->
       <div id="cfg-c3" style="display:none">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px">Plantillas de Puestos de Trabajo</div>
-        <div style="font-size:12px;color:var(--tx3);line-height:1.6;margin-bottom:14px">
-          Define plantillas reutilizables por tipo de cargo. Al completar la DPT de una persona puedes importar su plantilla y ahorrar tiempo.
-        </div>
-        <button class="bfull go" onclick="plantillaCrear()" style="margin-bottom:14px">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke-width="2"/></svg>
-          Nueva plantilla de puesto
-        </button>
-        <div id="cfg-plantillas-list">
-          <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px;font-style:italic">Cargando...</div>
-        </div>
-        <div class="divider" style="margin:22px 0"></div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px">Guión One-to-One</div>
-        <div style="font-size:12px;color:var(--tx3);line-height:1.6;margin-bottom:14px">
-          El guión se estructura en 5 bloques fijos (metodología CFR). Puedes añadir preguntas personalizadas a cada bloque.
-        </div>
-        <div id="cfg-oto-bloques"></div>
-      </div>
 
+        <!-- Sub-tabs internos: OTO / DPT -->
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--bd);margin-bottom:18px">
+          <button id="pv-t1" onclick="pvTab(1)" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--oro);color:var(--oroD);font-family:var(--f);display:flex;align-items:center;gap:5px;transition:all 0.13s">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/></svg>
+            One-to-One
+          </button>
+          <button id="pv-t2" onclick="pvTab(2)" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--tx3);font-family:var(--f);display:flex;align-items:center;gap:5px;transition:all 0.13s">
+            <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke-width="2"/></svg>
+            Puestos de Trabajo
+          </button>
+        </div>
+
+        <!-- Panel OTO -->
+        <div id="pv-c1">
+          <div id="pv-oto-content">
+            <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">Cargando...</div>
+          </div>
+        </div>
+
+        <!-- Panel DPT -->
+        <div id="pv-c2" style="display:none">
+          <div id="pv-dpt-content">
+            <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">Cargando...</div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
@@ -1370,6 +1379,8 @@ async function initApp(user){
 
   // ── Factorial: detectar cambios en segundo plano ─────────────────────────
   setTimeout(()=>facDetectarCambios(), 2000);
+  // ── Cargar plantilla OTO activa (puede haber sido modificada desde BD) ───
+  pvCargarPlantillaActiva();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1458,7 +1469,7 @@ function cfgTab(n){
     if(c)c.style.display=on?'block':'none';
   });
   if(n===1)updateStorageInfo();
-  if(n===3){rendPlantillasList();rendOTOBloques();}
+  if(n===3){pvTab(1);}
 }
 
 function updateStorageInfo(){
@@ -3315,47 +3326,596 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  PLANTILLAS DE PUESTOS DE TRABAJO
+//  PLANTILLAS VERSIONADAS — Control de versiones para OTO y DPT
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function rendPlantillasList(){
-  const el=document.getElementById('cfg-plantillas-list');
-  if(!el) return;
-  el.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">Cargando...</div>';
-  try{
-    const {data:plantillas}=await sb.from('plantillas_puesto').select('*').order('area').order('nombre');
-    if(!plantillas?.length){
-      el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px;font-style:italic">Sin plantillas aún. Crea la primera.</div>`;
-      return;
-    }
-    const porArea={};
-    plantillas.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
-    let h='';
-    Object.entries(porArea).forEach(([area,lista])=>{
-      h+=`<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px;margin:12px 0 6px">${area||'Sin área'}</div>`;
-      lista.forEach(p=>{
-        h+=`<div style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r2);padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</div>
-            ${p.descripcion?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${p.descripcion}</div>`:''}
-          </div>
-          <div style="display:flex;gap:6px;flex-shrink:0">
-            <button style="background:none;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 10px;font-size:11px;font-weight:600;color:var(--tx3);cursor:pointer;font-family:var(--f)"
-              onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'"
-              onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"
-              onclick="plantillaEditar('${p.id}')">Editar</button>
-            <button style="background:none;border:1px solid var(--cD);border-radius:var(--r3);padding:4px 8px;font-size:11px;color:var(--tx4);cursor:pointer;font-family:var(--f)"
-              onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'"
-              onmouseout="this.style.borderColor='var(--cD)';this.style.color='var(--tx4)'"
-              onclick="plantillaEliminar('${p.id}','${p.nombre.replace(/'/g,"\\'")}')" title="Eliminar">✕</button>
-          </div>
-        </div>`;
-      });
-    });
-    el.innerHTML=h;
-  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:12px">Error cargando plantillas</div>`;}
+let _pvActualTab = 1;
+
+function pvTab(n) {
+  _pvActualTab = n;
+  [1, 2].forEach(i => {
+    const t = document.getElementById('pv-t' + i);
+    const c = document.getElementById('pv-c' + i);
+    const on = i === n;
+    if (t) { t.style.borderBottomColor = on ? 'var(--oro)' : 'transparent'; t.style.color = on ? 'var(--oroD)' : 'var(--tx3)'; }
+    if (c) c.style.display = on ? 'block' : 'none';
+  });
+  if (n === 1) pvRendOTO();
+  if (n === 2) pvRendDPT();
 }
 
+// ── Render panel OTO ─────────────────────────────────────────────────────────
+async function pvRendOTO() {
+  const el = document.getElementById('pv-oto-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">Cargando...</div>';
+  try {
+    const { data: versiones } = await sb.from('plantillas_versiones')
+      .select('id,version_num,activa,nota_cambio,autor_nombre,created_at,contenido')
+      .eq('tipo', 'oto')
+      .order('version_num', { ascending: false });
+    el.innerHTML = pvRendPanel('oto', versiones || []);
+  } catch (e) {
+    el.innerHTML = '<div style="color:var(--red);font-size:12px">Error cargando plantilla OTO</div>';
+  }
+}
+
+// ── Render panel DPT ─────────────────────────────────────────────────────────
+async function pvRendDPT() {
+  const el = document.getElementById('pv-dpt-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">Cargando...</div>';
+  try {
+    const { data: versiones } = await sb.from('plantillas_versiones')
+      .select('id,version_num,activa,nota_cambio,autor_nombre,created_at,contenido')
+      .eq('tipo', 'dpt')
+      .order('version_num', { ascending: false });
+    el.innerHTML = pvRendPanel('dpt', versiones || []);
+  } catch (e) {
+    el.innerHTML = '<div style="color:var(--red);font-size:12px">Error cargando plantilla DPT</div>';
+  }
+}
+
+// ── Componente común de panel ────────────────────────────────────────────────
+function pvRendPanel(tipo, versiones) {
+  const activa = versiones.find(v => v.activa);
+  const tipoLabel = tipo === 'oto' ? 'guión del One-to-One' : 'estructura de Puestos de Trabajo';
+  const tipoIcon = tipo === 'oto'
+    ? '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/></svg>'
+    : '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-width="2"/></svg>';
+
+  let h = '';
+
+  // Cabecera con versión activa
+  h += `<div style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:16px">`;
+  h += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">`;
+  h += `<div style="display:flex;align-items:center;gap:8px">`;
+  h += `<div style="width:28px;height:28px;border-radius:50%;background:var(--oroL);display:flex;align-items:center;justify-content:center;color:var(--oroD);flex-shrink:0">${tipoIcon}</div>`;
+  h += `<div>`;
+  h += `<div style="font-size:13px;font-weight:600;color:var(--tx)">${activa?.contenido?.nombre || 'Sin nombre'}</div>`;
+  h += `<div style="font-size:11px;color:var(--tx3);margin-top:1px">v${activa?.version_num || 1} · Activa · ${pvFecha(activa?.created_at)}</div>`;
+  h += `</div></div>`;
+  h += `<button class="btn go" style="font-size:12px;padding:7px 14px" onclick="pvEditarActiva('${tipo}','${activa?.id||''}')">`;
+  h += `<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/></svg>`;
+  h += `Editar plantilla</button>`;
+  h += `</div>`;
+  if (activa?.nota_cambio) {
+    h += `<div style="font-size:11.5px;color:var(--tx3);border-top:1px solid var(--cD);padding-top:8px;margin-top:2px">`;
+    h += `<span style="font-weight:600;color:var(--tx2)">Última modificación:</span> ${activa.nota_cambio}`;
+    h += `</div>`;
+  }
+  h += `</div>`;
+
+  // Historial de versiones
+  if (versiones.length > 1) {
+    h += `<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Historial de versiones</div>`;
+    h += `<div style="display:flex;flex-direction:column;gap:6px">`;
+    versiones.forEach(v => {
+      const esActiva = v.activa;
+      h += `<div style="background:var(--wh);border:1px solid ${esActiva ? 'var(--oroL)' : 'var(--cD)'};border-radius:var(--r2);padding:10px 12px;display:flex;align-items:center;gap:10px">`;
+      // Badge versión
+      h += `<div style="min-width:32px;height:22px;border-radius:var(--r3);background:${esActiva ? 'var(--oroD)' : 'var(--cream)'};color:${esActiva ? 'var(--wh)' : 'var(--tx3)'};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">v${v.version_num}</div>`;
+      // Info
+      h += `<div style="flex:1;min-width:0">`;
+      h += `<div style="font-size:12px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.nota_cambio || '—'}</div>`;
+      h += `<div style="font-size:10.5px;color:var(--tx3);margin-top:2px;display:flex;align-items:center;gap:8px">`;
+      h += `<span>${v.autor_nombre || 'Sistema'}</span>`;
+      h += `<span style="color:var(--cD)">·</span>`;
+      h += `<span>${pvFecha(v.created_at)}</span>`;
+      if (esActiva) h += `<span style="background:var(--oroL);color:var(--oroD);border-radius:4px;padding:1px 6px;font-size:9.5px;font-weight:700">ACTIVA</span>`;
+      h += `</div></div>`;
+      // Acciones
+      h += `<div style="display:flex;gap:6px;flex-shrink:0">`;
+      h += `<button style="background:none;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 10px;font-size:11px;color:var(--tx3);cursor:pointer;font-family:var(--f)" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'" onclick="pvVerVersion('${tipo}','${v.id}')">Ver</button>`;
+      if (!esActiva) {
+        h += `<button style="background:none;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 10px;font-size:11px;color:var(--tx3);cursor:pointer;font-family:var(--f)" onmouseover="this.style.borderColor='var(--ok)';this.style.color='var(--ok)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'" onclick="pvRestaurar('${tipo}','${v.id}',${v.version_num})">Restaurar</button>`;
+      }
+      h += `</div>`;
+      h += `</div>`;
+    });
+    h += `</div>`;
+  } else {
+    h += `<div style="font-size:12px;color:var(--tx3);font-style:italic">Esta es la versión inicial. Las siguientes ediciones quedarán registradas aquí.</div>`;
+  }
+
+  return h;
+}
+
+function pvFecha(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// ── Editar versión activa ─────────────────────────────────────────────────────
+async function pvEditarActiva(tipo, versionId) {
+  if (!versionId) { pvRendEditor(tipo, null, {}); return; }
+  const { data: v } = await sb.from('plantillas_versiones').select('*').eq('id', versionId).single();
+  if (v) pvRendEditor(tipo, v.id, v.contenido);
+}
+
+// ── Ver versión (solo lectura) ────────────────────────────────────────────────
+async function pvVerVersion(tipo, versionId) {
+  const { data: v } = await sb.from('plantillas_versiones').select('*').eq('id', versionId).single();
+  if (!v) return;
+  pvMostrarVisorVersion(tipo, v);
+}
+
+function pvMostrarVisorVersion(tipo, v) {
+  const bg = document.getElementById('modal-bg');
+  if (!bg) return;
+  const contenido = v.contenido;
+  const bloques = contenido.bloques || [];
+
+  let html = `<div style="background:var(--wh);border-radius:var(--r);overflow:hidden;width:580px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column">`;
+  html += `<div style="padding:16px 20px;border-bottom:1px solid var(--bd);background:var(--wh);flex-shrink:0;display:flex;align-items:center;justify-content:space-between">`;
+  html += `<div><div style="font-size:14px;font-weight:700;color:var(--tx)">${contenido.nombre || 'Plantilla'} · v${v.version_num}</div>`;
+  html += `<div style="font-size:11px;color:var(--tx3);margin-top:2px">${v.autor_nombre || 'Sistema'} · ${pvFecha(v.created_at)} · ${v.nota_cambio || '—'}</div></div>`;
+  html += `<button onclick="pvCerrarModal()" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:20px;line-height:1;padding:4px">×</button>`;
+  html += `</div>`;
+  html += `<div style="overflow-y:auto;flex:1;padding:18px 20px">`;
+
+  bloques.forEach(b => {
+    html += `<div style="margin-bottom:16px">`;
+    html += `<div style="font-size:11px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--oroL)">${b.num}. ${b.titulo}</div>`;
+    if (b.preguntas) {
+      b.preguntas.forEach(p => {
+        html += `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--cD)">`;
+        html += `<span style="font-size:10px;font-weight:700;color:var(--oroD);min-width:80px;padding-top:2px">${p.tag}</span>`;
+        html += `<span style="font-size:12.5px;color:var(--tx);line-height:1.5">${p.texto}</span>`;
+        html += `</div>`;
+      });
+    }
+    if (b.subsecciones) {
+      b.subsecciones.forEach(s => {
+        html += `<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;margin:8px 0 4px">${s.titulo}</div>`;
+        s.preguntas.forEach(p => {
+          html += `<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--cD)">`;
+          html += `<span style="font-size:10px;font-weight:700;color:var(--tx3);min-width:80px;padding-top:2px">${p.tag}</span>`;
+          html += `<span style="font-size:12.5px;color:var(--tx);line-height:1.5">${p.texto}</span>`;
+          html += `</div>`;
+        });
+      });
+    }
+    if (b.campos) {
+      b.campos.forEach(c => {
+        html += `<div style="padding:5px 0;border-bottom:1px solid var(--cD)">`;
+        html += `<span style="font-size:11px;font-weight:700;color:var(--tx2)">${c.label}</span>`;
+        html += `<span style="font-size:10px;color:var(--tx4);margin-left:8px">${c.tipo} ${c.obligatorio ? '· obligatorio' : '· opcional'}</span>`;
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  html += `<div style="padding:12px 20px;border-top:1px solid var(--bd);display:flex;gap:8px;background:var(--wh);flex-shrink:0">`;
+  if (!v.activa) {
+    html += `<button class="btn go" style="flex:1;justify-content:center;font-size:12px" onclick="pvRestaurar('${tipo}','${v.id}',${v.version_num})">Restaurar esta versión</button>`;
+  }
+  html += `<button class="btn lt" style="padding:9px 16px;font-size:12px" onclick="pvCerrarModal()">Cerrar</button>`;
+  html += `</div></div>`;
+
+  bg.innerHTML = `<div onclick="if(event.target===this)pvCerrarModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px">${html}</div>`;
+  bg.classList.add('open');
+  bg.style.display = 'block';
+  bg.style.background = 'none';
+  bg.style.zIndex = '9000';
+}
+
+// ── Restaurar versión anterior ────────────────────────────────────────────────
+async function pvRestaurar(tipo, versionId, versionNum) {
+  const conf = confirm(`¿Restaurar la versión v${versionNum}?\n\nSe creará una nueva versión activa con ese contenido. El historial no se modifica.`);
+  if (!conf) return;
+  const { data: v } = await sb.from('plantillas_versiones').select('*').eq('id', versionId).single();
+  if (!v) return;
+  const nuevaVersion = await pvGuardarVersion(
+    tipo,
+    v.contenido,
+    `Restaurada desde v${versionNum}`
+  );
+  if (nuevaVersion) {
+    pvCerrarModal();
+    if (tipo === 'oto') pvRendOTO(); else pvRendDPT();
+  }
+}
+
+// ── Editor de plantilla ───────────────────────────────────────────────────────
+function pvRendEditor(tipo, versionId, contenido) {
+  const esOTO = tipo === 'oto';
+  const titulo = esOTO ? 'Editar guión One-to-One' : 'Editar estructura Puestos de Trabajo';
+  const bloques = contenido.bloques || [];
+
+  const bg = document.getElementById('modal-bg');
+  if (!bg) return;
+
+  let html = `<div style="background:var(--wh);border-radius:var(--r);overflow:hidden;width:640px;max-width:96vw;max-height:92vh;display:flex;flex-direction:column">`;
+
+  // Header
+  html += `<div style="padding:16px 20px 14px;border-bottom:1px solid var(--bd);background:var(--wh);flex-shrink:0">`;
+  html += `<div style="font-size:15px;font-weight:700;color:var(--tx)">${titulo}</div>`;
+  html += `<div style="font-size:12px;color:var(--tx3);margin-top:2px">Cada cambio crea una nueva versión con historial completo</div>`;
+  html += `</div>`;
+
+  // Scrollable body
+  html += `<div style="overflow-y:auto;flex:1;padding:18px 20px">`;
+
+  if (esOTO) {
+    // Editor OTO: mostrar cada bloque con sus preguntas editables
+    html += `<div style="font-size:11px;color:var(--tx3);background:var(--cream);border-radius:var(--r2);padding:10px 12px;margin-bottom:16px;line-height:1.6">`;
+    html += `Los bloques 1-5 corresponden a la metodología CFR. Puedes <strong>editar el texto de cualquier pregunta</strong>, añadir nuevas o eliminar las que no uses.`;
+    html += `</div>`;
+
+    bloques.forEach((b, bi) => {
+      const bloqueId = `pv-bloque-${bi}`;
+      html += `<div id="${bloqueId}" style="margin-bottom:18px;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden">`;
+      // Cabecera del bloque
+      html += `<div style="background:var(--sb);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">`;
+      html += `<div style="display:flex;align-items:center;gap:8px">`;
+      html += `<div style="width:22px;height:22px;border-radius:50%;background:var(--oroL);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--oroD)">${b.num}</div>`;
+      html += `<div style="font-size:13px;font-weight:600;color:var(--wh)">${b.titulo}</div>`;
+      html += `<div style="font-size:11px;color:rgba(255,255,255,0.4)">${b.minutos} min</div>`;
+      html += `</div>`;
+      if (b.tipo_especial !== 'compromisos') {
+        html += `<button onclick="pvAddPregunta(${bi})" style="background:rgba(216,165,95,0.15);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:3px 10px;font-size:11px;font-weight:700;color:var(--oro);cursor:pointer;font-family:var(--f)">+ Pregunta</button>`;
+      }
+      html += `</div>`;
+      // Hint editable
+      html += `<div style="padding:8px 12px;background:rgba(216,165,95,0.04);border-bottom:1px solid var(--cD)">`;
+      html += `<div style="font-size:9.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px">Guía para el responsable</div>`;
+      html += `<textarea data-bi="${bi}" data-field="hint" onchange="pvUpdateBloque(this)" style="width:100%;border:1px solid transparent;background:none;font-size:12px;font-family:var(--f);color:var(--tx2);resize:none;outline:none;line-height:1.5;box-sizing:border-box" rows="2" onfocus="this.style.borderColor='var(--bd)'" onblur="this.style.borderColor='transparent'">${b.hint || b.descripcion || ''}</textarea>`;
+      html += `</div>`;
+
+      if (b.tipo_especial === 'compromisos') {
+        html += `<div style="padding:12px 14px;font-size:12px;color:var(--tx3);font-style:italic">Este bloque registra los compromisos de ambas partes. Su estructura es fija.</div>`;
+      } else {
+        // Preguntas directas
+        const preguntas = b.preguntas || [];
+        html += `<div id="pv-pregs-${bi}" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">`;
+        preguntas.forEach((p, pi) => {
+          html += pvRendPreguntaEditor(bi, pi, p, null);
+        });
+        html += `</div>`;
+        // Subsecciones
+        if (b.subsecciones) {
+          b.subsecciones.forEach((s, si) => {
+            html += `<div style="border-top:1px solid var(--cD)">`;
+            html += `<div style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;display:flex;align-items:center;justify-content:space-between">`;
+            html += `<span>${s.titulo}</span>`;
+            html += `<button onclick="pvAddPreguntaSub(${bi},${si})" style="background:none;border:1px solid var(--bd);border-radius:var(--r3);padding:2px 8px;font-size:10px;color:var(--tx3);cursor:pointer;font-family:var(--f)" onmouseover="this.style.borderColor='var(--oro)'" onmouseout="this.style.borderColor='var(--bd)'">+ Pregunta</button>`;
+            html += `</div>`;
+            html += `<div id="pv-pregs-${bi}-${si}" style="padding:0 14px 10px;display:flex;flex-direction:column;gap:7px">`;
+            s.preguntas.forEach((p, pi) => {
+              html += pvRendPreguntaEditor(bi, pi, p, si);
+            });
+            html += `</div></div>`;
+          });
+        }
+      }
+      html += `</div>`; // fin bloque
+    });
+  } else {
+    // Editor DPT: campos por bloque
+    html += `<div style="font-size:11px;color:var(--tx3);background:var(--cream);border-radius:var(--r2);padding:10px 12px;margin-bottom:16px;line-height:1.6">`;
+    html += `Los 3 bloques definen la estructura de cualquier ficha de puesto. Puedes modificar los <strong>labels, placeholders y tipos de campo</strong>.`;
+    html += `</div>`;
+
+    bloques.forEach((b, bi) => {
+      html += `<div style="margin-bottom:18px;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden">`;
+      html += `<div style="background:var(--sb);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">`;
+      html += `<div style="display:flex;align-items:center;gap:8px">`;
+      html += `<div style="width:22px;height:22px;border-radius:50%;background:var(--oroL);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--oroD)">${b.num}</div>`;
+      html += `<div>`;
+      html += `<div style="font-size:13px;font-weight:600;color:var(--wh)">${b.titulo}</div>`;
+      html += `<div style="font-size:11px;color:rgba(255,255,255,0.4)">${b.descripcion}</div>`;
+      html += `</div></div>`;
+      html += `<button onclick="pvAddCampo(${bi})" style="background:rgba(216,165,95,0.15);border:1px solid rgba(216,165,95,0.3);border-radius:var(--r3);padding:3px 10px;font-size:11px;font-weight:700;color:var(--oro);cursor:pointer;font-family:var(--f)">+ Campo</button>`;
+      html += `</div>`;
+      html += `<div id="pv-campos-${bi}" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">`;
+      (b.campos || []).forEach((c, ci) => {
+        html += pvRendCampoEditor(bi, ci, c);
+      });
+      html += `</div></div>`;
+    });
+  }
+
+  html += `</div>`; // fin scroll body
+
+  // Nota de cambio + footer
+  html += `<div style="padding:14px 20px;border-top:1px solid var(--bd);background:var(--wh);flex-shrink:0">`;
+  html += `<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Nota del cambio <span style="font-weight:400;text-transform:none">(¿qué modificaste?)</span></div>`;
+  html += `<input id="pv-nota" placeholder="Ej: Añadida pregunta de bienestar en B1, mejorado el hint del B3..." style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:8px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box;margin-bottom:10px" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">`;
+  html += `<div style="display:flex;gap:8px">`;
+  html += `<button class="btn go" style="flex:1;justify-content:center;font-size:13px" onclick="pvGuardarDesdeEditor('${tipo}')">Guardar nueva versión</button>`;
+  html += `<button class="btn lt" style="padding:10px 16px;font-size:13px" onclick="pvCerrarModal()">Cancelar</button>`;
+  html += `</div>`;
+  html += `<div id="pv-st" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>`;
+  html += `</div></div>`;
+
+  bg.innerHTML = `<div onclick="if(event.target===this)pvCerrarModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px" id="pv-overlay">${html}</div>`;
+  bg.classList.add('open');
+  bg.style.display = 'block';
+  bg.style.background = 'none';
+  bg.style.zIndex = '9000';
+
+  // Guardar el contenido actual en memoria para edición
+  window._pvContenidoEditor = JSON.parse(JSON.stringify(contenido));
+  window._pvTipoEditor = tipo;
+}
+
+function pvRendPreguntaEditor(bi, pi, p, si) {
+  const key = si !== null ? `${bi}-${si}-${pi}` : `${bi}-${pi}`;
+  const delFn = si !== null ? `pvDelPreguntaSub(${bi},${si},${pi})` : `pvDelPregunta(${bi},${pi})`;
+  const changeFn = si !== null ? `pvUpdatePreguntaSub(this,${bi},${si},${pi})` : `pvUpdatePregunta(this,${bi},${pi})`;
+  let h = `<div id="pvp-${key}" style="display:flex;gap:8px;align-items:flex-start;padding:8px 10px;background:var(--cream);border-radius:var(--r2);border:1px solid var(--cD)">`;
+  h += `<input value="${(p.tag||'').replace(/"/g,'&quot;')}" placeholder="Tag" onchange="${changeFn.replace('this','this').replace('pvUpdate','pvUpdateTag')}" style="width:72px;flex-shrink:0;border:1px solid var(--bd);border-radius:var(--r3);padding:5px 8px;font-size:11px;font-family:var(--f);background:var(--wh);outline:none;color:var(--tx)" data-field="tag" data-key="${key}">`;
+  h += `<textarea onchange="${changeFn}" style="flex:1;border:1px solid var(--bd);border-radius:var(--r3);padding:5px 8px;font-size:12.5px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:none;outline:none;line-height:1.4" rows="2" data-field="texto" data-key="${key}">${p.texto||''}</textarea>`;
+  h += `<button onclick="${delFn}" style="background:none;border:none;cursor:pointer;color:var(--tx4);font-size:16px;line-height:1;padding:4px;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx4)'">×</button>`;
+  h += `</div>`;
+  return h;
+}
+
+function pvRendCampoEditor(bi, ci, c) {
+  let h = `<div id="pvc-${bi}-${ci}" style="background:var(--cream);border:1px solid var(--cD);border-radius:var(--r2);padding:10px 12px">`;
+  h += `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">`;
+  h += `<input value="${(c.id||'').replace(/"/g,'&quot;')}" placeholder="ID (sin espacios)" onchange="pvUpdateCampo(this,${bi},${ci},'id')" style="width:100px;flex-shrink:0;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 8px;font-size:11px;font-family:var(--f);background:var(--wh);outline:none;color:var(--tx3)">`;
+  h += `<input value="${(c.label||'').replace(/"/g,'&quot;')}" placeholder="Etiqueta del campo" onchange="pvUpdateCampo(this,${bi},${ci},'label')" style="flex:1;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 8px;font-size:12px;font-family:var(--f);background:var(--wh);outline:none;color:var(--tx)">`;
+  h += `<select onchange="pvUpdateCampo(this,${bi},${ci},'tipo')" style="border:1px solid var(--bd);border-radius:var(--r3);padding:4px 8px;font-size:11px;font-family:var(--f);background:var(--wh);outline:none;cursor:pointer">`;
+  h += `<option value="input"${c.tipo==='input'?' selected':''}>Input</option>`;
+  h += `<option value="textarea"${c.tipo==='textarea'?' selected':''}>Textarea</option>`;
+  h += `</select>`;
+  h += `<button onclick="pvDelCampo(${bi},${ci})" style="background:none;border:none;cursor:pointer;color:var(--tx4);font-size:16px;padding:2px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx4)'">×</button>`;
+  h += `</div>`;
+  h += `<input value="${(c.placeholder||'').replace(/"/g,'&quot;')}" placeholder="Placeholder del campo..." onchange="pvUpdateCampo(this,${bi},${ci},'placeholder')" style="width:100%;border:1px solid var(--bd);border-radius:var(--r3);padding:4px 8px;font-size:11.5px;font-family:var(--f);background:var(--wh);outline:none;color:var(--tx3);box-sizing:border-box">`;
+  h += `</div>`;
+  return h;
+}
+
+// ── Funciones de edición en memoria ──────────────────────────────────────────
+function pvUpdateBloque(el) {
+  const bi = parseInt(el.dataset.bi);
+  const field = el.dataset.field;
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi][field] = el.value;
+}
+
+function pvUpdatePregunta(el, bi, pi) {
+  const field = el.dataset.field;
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].preguntas[pi][field] = el.value;
+}
+
+function pvUpdatePreguntaSub(el, bi, si, pi) {
+  const field = el.dataset.field;
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].subsecciones[si].preguntas[pi][field] = el.value;
+}
+
+function pvUpdateCampo(el, bi, ci, field) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].campos[ci][field] = el.value;
+}
+
+function pvDelPregunta(bi, pi) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].preguntas.splice(pi, 1);
+  pvRefreshBloque(bi);
+}
+
+function pvDelPreguntaSub(bi, si, pi) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].subsecciones[si].preguntas.splice(pi, 1);
+  pvRefreshBloqueSub(bi, si);
+}
+
+function pvDelCampo(bi, ci) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].campos.splice(ci, 1);
+  pvRefreshCampos(bi);
+}
+
+function pvAddPregunta(bi) {
+  if (!window._pvContenidoEditor) return;
+  if (!window._pvContenidoEditor.bloques[bi].preguntas) window._pvContenidoEditor.bloques[bi].preguntas = [];
+  window._pvContenidoEditor.bloques[bi].preguntas.push({ tag: 'Nueva', texto: '', literal: false });
+  pvRefreshBloque(bi);
+}
+
+function pvAddPreguntaSub(bi, si) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].subsecciones[si].preguntas.push({ tag: 'Nueva', texto: '', literal: false });
+  pvRefreshBloqueSub(bi, si);
+}
+
+function pvAddCampo(bi) {
+  if (!window._pvContenidoEditor) return;
+  window._pvContenidoEditor.bloques[bi].campos.push({ id: 'campo_nuevo', label: 'Nuevo campo', tipo: 'input', placeholder: '', obligatorio: false });
+  pvRefreshCampos(bi);
+}
+
+function pvRefreshBloque(bi) {
+  const el = document.getElementById(`pv-pregs-${bi}`);
+  if (!el) return;
+  const preguntas = window._pvContenidoEditor.bloques[bi].preguntas || [];
+  el.innerHTML = preguntas.map((p, pi) => pvRendPreguntaEditor(bi, pi, p, null)).join('');
+}
+
+function pvRefreshBloqueSub(bi, si) {
+  const el = document.getElementById(`pv-pregs-${bi}-${si}`);
+  if (!el) return;
+  const preguntas = window._pvContenidoEditor.bloques[bi].subsecciones[si].preguntas || [];
+  el.innerHTML = preguntas.map((p, pi) => pvRendPreguntaEditor(bi, pi, p, si)).join('');
+}
+
+function pvRefreshCampos(bi) {
+  const el = document.getElementById(`pv-campos-${bi}`);
+  if (!el) return;
+  const campos = window._pvContenidoEditor.bloques[bi].campos || [];
+  el.innerHTML = campos.map((c, ci) => pvRendCampoEditor(bi, ci, c)).join('');
+}
+
+// ── Guardar nueva versión desde el editor ─────────────────────────────────────
+async function pvGuardarDesdeEditor(tipo) {
+  const nota = document.getElementById('pv-nota')?.value?.trim() || '';
+  const st = document.getElementById('pv-st');
+  if (!nota) { if (st) st.textContent = 'Describe brevemente qué has cambiado.'; return; }
+  if (st) st.textContent = 'Guardando...';
+
+  const contenido = window._pvContenidoEditor;
+  if (!contenido) { if (st) st.textContent = 'Error: no hay contenido en memoria.'; return; }
+
+  const result = await pvGuardarVersion(tipo, contenido, nota);
+  if (result) {
+    pvCerrarModal();
+    if (tipo === 'oto') pvRendOTO(); else pvRendDPT();
+  } else {
+    if (st) st.textContent = 'Error al guardar. Inténtalo de nuevo.';
+  }
+}
+
+// ── Motor: crear nueva versión en BD ─────────────────────────────────────────
+async function pvGuardarVersion(tipo, contenido, nota) {
+  try {
+    // 1. Obtener número de versión siguiente
+    const { data: ultimas } = await sb.from('plantillas_versiones')
+      .select('version_num')
+      .eq('tipo', tipo)
+      .order('version_num', { ascending: false })
+      .limit(1);
+    const siguienteNum = (ultimas?.[0]?.version_num || 0) + 1;
+
+    // 2. Desactivar versión activa actual
+    await sb.from('plantillas_versiones')
+      .update({ activa: false })
+      .eq('tipo', tipo)
+      .eq('activa', true);
+
+    // 3. Insertar nueva versión activa
+    const { data: { user } } = await sb.auth.getUser();
+    const { error } = await sb.from('plantillas_versiones').insert({
+      tipo,
+      version_num: siguienteNum,
+      contenido,
+      activa: true,
+      nota_cambio: nota,
+      autor_id: user?.id || null,
+      autor_nombre: C.nombreUsuario || user?.email || 'Desconocido'
+    });
+
+    if (error) throw error;
+
+    // 4. Si es OTO, actualizar BLOQUES en memoria para que la sesión los use
+    if (tipo === 'oto' && contenido.bloques) {
+      pvAplicarBloquesOTO(contenido.bloques);
+    }
+
+    return true;
+  } catch (e) {
+    console.error('pvGuardarVersion error', e);
+    return false;
+  }
+}
+
+// ── Aplicar OTO bloques a la sesión activa ────────────────────────────────────
+function pvAplicarBloquesOTO(bloques) {
+  // Actualizar los BLOQUES globales que usa rendBloque()
+  if (typeof BLOQUES !== 'undefined' && BLOQUES) {
+    bloques.forEach((b, i) => {
+      if (BLOQUES[i]) {
+        if (b.hint) BLOQUES[i].hint = b.hint;
+        if (b.preguntas) BLOQUES[i].rows = b.preguntas.map(p => ({ tag: p.tag, txt: p.texto, lit: p.literal ? 1 : 0 }));
+        if (b.subsecciones) {
+          BLOQUES[i].subs = b.subsecciones.map(s => ({
+            s: s.titulo,
+            rows: s.preguntas.map(p => ({ tag: p.tag, txt: p.texto, lit: p.literal ? 1 : 0 }))
+          }));
+        }
+      }
+    });
+  }
+}
+
+// ── Cargar plantilla OTO activa al iniciar ────────────────────────────────────
+async function pvCargarPlantillaActiva() {
+  try {
+    const { data } = await sb.from('plantillas_versiones')
+      .select('contenido')
+      .eq('tipo', 'oto')
+      .eq('activa', true)
+      .single();
+    if (data?.contenido?.bloques) {
+      pvAplicarBloquesOTO(data.contenido.bloques);
+    }
+  } catch (e) {
+    // Usar BLOQUES por defecto si falla
+  }
+}
+
+// ── Cerrar modal de plantillas ────────────────────────────────────────────────
+function pvCerrarModal() {
+  const bg = document.getElementById('modal-bg');
+  if (bg) {
+    bg.classList.remove('open');
+    bg.style.display = 'none';
+    bg.style.background = '';
+    bg.style.zIndex = '';
+    bg.innerHTML = '<div class="modal" id="modal-inner"></div>';
+  }
+  window._pvContenidoEditor = null;
+}
+
+// ── Contexto de plantillas para Beni ─────────────────────────────────────────
+async function pvGetContextoBeni() {
+  try {
+    const { data } = await sb.from('plantillas_versiones')
+      .select('tipo,version_num,nota_cambio,autor_nombre,created_at,contenido')
+      .eq('activa', true);
+    if (!data) return {};
+    const oto = data.find(v => v.tipo === 'oto');
+    const dpt = data.find(v => v.tipo === 'dpt');
+    return {
+      plantilla_oto: oto ? {
+        version: oto.version_num,
+        ultima_modificacion: oto.nota_cambio,
+        modificado_por: oto.autor_nombre,
+        bloques: oto.contenido?.bloques?.map(b => ({
+          num: b.num, titulo: b.titulo, minutos: b.minutos,
+          total_preguntas: (b.preguntas?.length || 0) + (b.subsecciones?.reduce((acc, s) => acc + s.preguntas.length, 0) || 0)
+        }))
+      } : null,
+      plantilla_dpt: dpt ? {
+        version: dpt.version_num,
+        ultima_modificacion: dpt.nota_cambio,
+        bloques: dpt.contenido?.bloques?.map(b => ({
+          num: b.num, titulo: b.titulo,
+          campos: b.campos?.map(c => c.label)
+        }))
+      } : null
+    };
+  } catch (e) {
+    return {};
+  }
+}
 function plantillaCrear(){_plantillaModal(null);}
 async function plantillaEditar(id){const {data}=await sb.from('plantillas_puesto').select('*').eq('id',id).single();if(data)_plantillaModal(data);}
 
@@ -3902,7 +4462,8 @@ async function beniEnviar(){
     por_area:Object.entries(porArea).map(([area,personas])=>({area,total:personas.length,personas})),
     sesiones_registradas:C.hist.length,
     fecha_hoy:td(),
-    herramienta_estado:'arranque — primeras sesiones en curso durante marzo-abril 2026'
+    herramienta_estado:'arranque — primeras sesiones en curso durante marzo-abril 2026',
+    plantillas:await pvGetContextoBeni()
   };
 
   // Si hay persona activa en pantalla, añadir su historial
