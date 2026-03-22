@@ -1296,19 +1296,38 @@ async function saveH_db(sesObj){
 async function saveP_db(persona,fecha,hora=null){
   const pid=C.pmap[persona]?.id;
   if(!pid) throw new Error('Persona no encontrada: '+persona);
+
   const payload={persona_id:pid,fecha};
   if(hora) payload.hora=hora;
-  const {data,error}=await sb.from('programaciones')
-    .upsert(payload,{onConflict:'persona_id,fecha'})
-    .select('id').single();
-  if(error) throw new Error(error.message);
-  if(!C.prog.find(x=>x.persona===persona&&x.fecha===fecha))
-    C.prog.push({persona,fecha,hora,id:data?.id});
-  else{
-    const e=C.prog.find(x=>x.persona===persona&&x.fecha===fecha);
-    if(e){e.hora=hora;e.id=data?.id;}
+
+  // Try insert first
+  let {data,error}=await sb.from('programaciones')
+    .insert(payload)
+    .select('id')
+    .limit(1);
+
+  // If conflict (already exists), do update instead
+  if(error && error.code==='23505'){
+    const upd=await sb.from('programaciones')
+      .update(hora?{hora}:{hora:null})
+      .eq('persona_id',pid)
+      .eq('fecha',fecha)
+      .select('id')
+      .limit(1);
+    error=upd.error;
+    data=upd.data;
   }
-  return data?.id||null;
+
+  if(error) throw new Error(error.message+' (code: '+error.code+')');
+
+  const rowId=Array.isArray(data)&&data.length?data[0].id:null;
+
+  // Update local cache
+  const existing=C.prog.find(x=>x.persona===persona&&x.fecha===fecha);
+  if(existing){ existing.hora=hora; existing.id=rowId; }
+  else C.prog.push({persona,fecha,hora,outlook_status:'none',id:rowId});
+
+  return rowId;
 }
 
 async function deleteP_db(persona,fecha){
@@ -3591,6 +3610,7 @@ function openModal(type,idx){
     </div>
   </div>
   <div id="modal-freebusy" style="min-height:32px;margin:8px 0 4px"></div>
+  <div id="modal-prog-err" style="display:none;font-size:12px;color:var(--red);background:var(--redB);border:1px solid var(--redL);border-radius:var(--r2);padding:8px 12px;margin:4px 0"></div>
   <div style="display:flex;gap:8px;margin-top:4px">
     <button class="btn lt" style="flex:1;padding:10px;justify-content:center" onclick="closeModal()">Cancelar</button>
     <button class="btn dk" style="flex:2;padding:10px;justify-content:center" onclick="saveProg()">Guardar</button>
@@ -3645,17 +3665,27 @@ async function saveProg(){
   if(!p||!f)return;
 
   const btn=document.querySelector('[onclick="saveProg()"]');
+  const errEl=document.getElementById('modal-prog-err');
   if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  if(errEl)errEl.textContent='';
 
   try{
     const progId=await saveP_db(p,f,h);
-    closeModal();rendCal();rendDB();
+    closeModal();
+    rendCal();
+    rendDB();
     if(progId && h && C.outlook?.connected){
       outlookCrearEvento(p,f,h,progId).catch(()=>{});
     }
   }catch(e){
     if(btn){btn.disabled=false;btn.textContent='Guardar';}
-    alert('Error al programar: '+e.message);
+    if(errEl){
+      errEl.textContent='Error: '+e.message;
+      errEl.style.display='block';
+    } else {
+      alert('Error al programar: '+e.message);
+    }
+    console.error('saveProg error:',e);
   }
 }
 
