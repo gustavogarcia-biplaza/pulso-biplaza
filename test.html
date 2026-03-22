@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>PULSO TEST v001</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+body{font-family:sans-serif;background:#23282E;color:#fff;padding:40px;max-width:600px;margin:0 auto}
+.paso{padding:10px 14px;margin:6px 0;border-radius:6px;background:rgba(255,255,255,0.05);border-left:3px solid #888}
+.ok{border-color:#4CAF50}.err{border-color:#f44336}.wait{border-color:#D8A55F}
+h1{color:#D8A55F;margin-bottom:24px}
+</style>
+</head>
+<body>
+<h1>PULSO — Diagnóstico v001</h1>
+<div id="pasos"></div>
+<script>
+const SB_URL='https://lpxvatcwkerrrokrwwqt.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweHZhdGN3a2VycnJva3J3d3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTcwMDgsImV4cCI6MjA4OTU3MzAwOH0.or9l-I4qhwpcbQwuKYdeyJZbL-wauyExZmpEwPq7pcA';
+
+function paso(txt, estado='wait'){
+  const d=document.createElement('div');
+  d.className='paso '+estado;
+  d.textContent=txt;
+  document.getElementById('pasos').appendChild(d);
+  return d;
+}
+
+(async()=>{
+  paso('1. Página cargada ✓','ok');
+  
+  if(typeof supabase==='undefined'){
+    paso('2. ERROR: Supabase CDN no cargó','err');
+    return;
+  }
+  paso('2. Supabase CDN cargado ✓','ok');
+  
+  let sb;
+  try{
+    sb=supabase.createClient(SB_URL,SB_KEY);
+    paso('3. Cliente Supabase creado ✓','ok');
+  }catch(e){
+    paso('3. ERROR creando cliente: '+e.message,'err');
+    return;
+  }
+  
+  const p4=paso('4. Verificando sesión...','wait');
+  try{
+    const {data:{session},error}=await sb.auth.getSession();
+    if(error) throw error;
+    if(session){
+      p4.textContent='4. Sesión activa: '+session.user.email+' ✓';
+      p4.className='paso ok';
+      
+      const p5=paso('5. Consultando base de datos...','wait');
+      try{
+        const {data,error:e2}=await sb.from('personas').select('nombre').limit(3);
+        if(e2) throw e2;
+        p5.textContent='5. BD accesible — '+data.length+' personas ✓';
+        p5.className='paso ok';
+        paso('✅ TODO OK — La app debería cargar. El problema está en el HTML principal.','ok');
+      }catch(e){
+        p5.textContent='5. ERROR BD: '+e.message;
+        p5.className='paso err';
+      }
+    }else{
+      p4.textContent='4. Sin sesión activa — login requerido';
+      p4.className='paso wait';
+      paso('→ Haz login primero en la app principal y vuelve aquí','wait');
+      
+      const p5=paso('5. Consultando BD como anónimo...','wait');
+      try{
+        const {data,error:e2}=await sb.from('usuarios_permitidos').select('email').limit(1);
+        if(e2) throw e2;
+        p5.textContent='5. BD anónima accesible ✓';
+        p5.className='paso ok';
+      }catch(e){
+        p5.textContent='5. ERROR BD anónima: '+e.message;
+        p5.className='paso err';
+      }
+    }
+  }catch(e){
+    p4.textContent='4. ERROR sesión: '+e.message;
+    p4.className='paso err';
+  }
+})();
+</script>
+</body>
+</html>
