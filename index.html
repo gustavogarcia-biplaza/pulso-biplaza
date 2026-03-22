@@ -3722,71 +3722,89 @@ async function dpEliminar(id,nombre){
 
 function _dpModal(pl){
   const isNew=!pl;
-  const fi=(id,val,ph)=>`<input id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box;transition:border-color 0.12s;margin-bottom:10px" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">`;
-  const ta=(id,val,ph,rows)=>`<textarea id="${id}" rows="${rows}" placeholder="${ph}" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:vertical;outline:none;box-sizing:border-box;line-height:1.5;margin-bottom:10px;transition:border-color 0.12s" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='var(--bd)'">${val||''}</textarea>`;
-  const lbl=(t,sub)=>`<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">${t}${sub?` <span style="font-weight:400;text-transform:none;font-size:10px">${sub}</span>`:''}`;
-  const sec=(num,t)=>`<div style="font-size:11px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin:20px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--oroL)">${num} · ${t}</div>`;
   const areas=['Laboral','Contable','Fiscal','Jurídica','Admin'];
 
-  const modal=document.getElementById('modal-inner');
-  modal.innerHTML=`<div style="padding:0">
-    <!-- Header del modal -->
-    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--wh);z-index:1">
-      <div style="font-size:16px;font-weight:700;color:var(--tx)">${isNew?'Nueva ficha de puesto':'Editar ficha de puesto'}</div>
-      <div style="font-size:12px;color:var(--tx3);margin-top:2px">Define el cargo, el perfil y el camino de desarrollo</div>
-    </div>
-    <!-- Cuerpo -->
-    <div style="padding:20px 24px;max-height:72vh;overflow-y:auto">
-      <!-- Datos básicos -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
-        <div>
-          ${lbl('Nombre del puesto')}</div>
-          ${fi('dp-nombre',pl?.nombre,'Ej: Asesor/a Contable N2')}
-        </div>
-        <div>
-          ${lbl('Área')}</div>
-          <select id="dp-area" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box;margin-bottom:10px;cursor:pointer">
-            <option value="">Selecciona un área</option>
-            ${areas.map(a=>`<option value="${a}"${pl?.area===a?' selected':''}>${a}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      ${lbl('Descripción breve', '(opcional)')}</div>
-      ${fi('dp-desc',pl?.descripcion,'Síntesis del puesto en una frase')}
+  // Construir el HTML del formulario usando concatenación simple (más robusta)
+  let html='';
+  html+='<div style="background:var(--wh);border-radius:var(--r);overflow:hidden;width:580px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column">';
 
-      ${sec('1','El puesto')}
-      ${lbl('Denominación oficial del cargo')}</div>
-      ${fi('dp-b1-cargo',pl?.bloque_1?.cargo,'Ej: Asesor/a de Gestión Contable')}
-      ${lbl('Objetivo general','¿Para qué existe este puesto?')}</div>
-      ${ta('dp-b1-objetivo',pl?.bloque_1?.objetivo,'Describe el propósito principal de este cargo dentro de BIPLAZA...',3)}
-      ${lbl('Funciones y tareas principales')}</div>
-      ${ta('dp-b1-funciones',pl?.bloque_1?.funciones,'Lista las responsabilidades clave del puesto...',4)}
+  // Header
+  html+='<div style="padding:18px 22px 14px;border-bottom:1px solid var(--bd);background:var(--wh);flex-shrink:0">';
+  html+='<div style="font-size:16px;font-weight:700;color:var(--tx)">'+(isNew?'Nueva ficha de puesto':'Editar ficha de puesto')+'</div>';
+  html+='<div style="font-size:12px;color:var(--tx3);margin-top:2px">Define el cargo, el perfil y el camino de desarrollo</div>';
+  html+='</div>';
 
-      ${sec('2','El perfil')}
-      ${lbl('Formación requerida')}</div>
-      ${fi('dp-b2-form',pl?.bloque_2?.formacion,'Ej: Grado en ADE o FP Grado Superior en Contabilidad')}
-      ${lbl('Competencias técnicas')}</div>
-      ${ta('dp-b2-tec',pl?.bloque_2?.competencias_tecnicas,'Conocimientos y herramientas necesarios para el puesto...',3)}
-      ${lbl('Competencias transversales')}</div>
-      ${ta('dp-b2-tra',pl?.bloque_2?.competencias_transversales,'Comunicación, orientación al cliente, trabajo en equipo...',3)}
+  // Body con scroll
+  html+='<div style="overflow-y:auto;flex:1;padding:18px 22px">';
 
-      ${sec('3','El desarrollo')}
-      ${lbl('Camino de evolución natural')}</div>
-      ${fi('dp-b3-camino',pl?.bloque_3?.camino,'Ej: Asesor/a Contable N3 o Responsable de Área')}
-      ${lbl('Qué debe demostrar para avanzar')}</div>
-      ${ta('dp-b3-demo',pl?.bloque_3?.que_debe_demostrar,'Capacidades, logros y comportamientos que marcan el salto al siguiente nivel...',4)}
-    </div>
-    <!-- Footer -->
-    <div style="padding:16px 24px;border-top:1px solid var(--bd);display:flex;gap:10px;background:var(--wh);position:sticky;bottom:0">
-      <button class="btn go" style="flex:1;justify-content:center;font-size:13px" onclick="dpGuardar('${pl?.id||''}')">
-        ${isNew?'Crear ficha de puesto':'Guardar cambios'}
-      </button>
-      <button class="btn lt" style="padding:10px 16px;font-size:13px" onclick="closeMo()">Cancelar</button>
-    </div>
-    <div id="dp-st" style="font-size:11px;color:var(--red);text-align:center;padding:0 24px 12px;min-height:14px"></div>
-  </div>`;
-  openMo();
+  // Fila nombre + área
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">';
+  html+='<div><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Nombre del puesto</div>';
+  html+='<input id="dp-nombre" value="'+(pl?.nombre||'').replace(/"/g,'&quot;')+'" placeholder="Ej: Asesor/a Contable N2" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'var(--oro)\'" onblur="this.style.borderColor=\'var(--bd)\'"></div>';
+  html+='<div><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Área</div>';
+  html+='<select id="dp-area" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box;cursor:pointer"><option value="">Selecciona un área</option>';
+  areas.forEach(a => { html+='<option value="'+a+'"'+(pl?.area===a?' selected':'')+'>'+a+'</option>'; });
+  html+='</select></div>';
+  html+='</div>';
+
+  // Descripción
+  html+='<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Descripción breve <span style="font-weight:400;text-transform:none">(opcional)</span></div>';
+  html+='<input id="dp-desc" value="'+(pl?.descripcion||'').replace(/"/g,'&quot;')+'" placeholder="Síntesis del puesto en una frase" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'var(--oro)\'" onblur="this.style.borderColor=\'var(--bd)\'"></div>';
+
+  function secHtml(num,t){ return '<div style="font-size:11px;font-weight:700;color:var(--oroD);text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--oroL)">'+num+' · '+t+'</div>'; }
+  function lblHtml(t,sub){ return '<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">'+t+(sub?' <span style="font-weight:400;text-transform:none">'+sub+'</span>':'')+'</div>'; }
+  function fiHtml(id,val,ph){ return '<input id="'+id+'" value="'+(val||'').replace(/"/g,'&quot;')+'" placeholder="'+ph+'" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);outline:none;box-sizing:border-box;margin-bottom:10px" onfocus="this.style.borderColor=\'var(--oro)\'" onblur="this.style.borderColor=\'var(--bd)\'">'; }
+  function taHtml(id,val,ph,rows){ return '<textarea id="'+id+'" rows="'+rows+'" placeholder="'+ph+'" style="width:100%;border:1px solid var(--bd);border-radius:var(--r2);padding:9px 12px;font-size:13px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:vertical;outline:none;box-sizing:border-box;line-height:1.5;margin-bottom:10px" onfocus="this.style.borderColor=\'var(--oro)\'" onblur="this.style.borderColor=\'var(--bd)\'">'+((val||'').replace(/</g,'&lt;'))+'</textarea>'; }
+
+  // Bloque 1
+  html+=secHtml('1','El puesto');
+  html+=lblHtml('Denominación oficial del cargo')+fiHtml('dp-b1-cargo',pl?.bloque_1?.cargo,'Ej: Asesor/a de Gestión Contable');
+  html+=lblHtml('Objetivo general','¿Para qué existe este puesto?')+taHtml('dp-b1-objetivo',pl?.bloque_1?.objetivo,'Describe el propósito principal de este cargo dentro de BIPLAZA...',3);
+  html+=lblHtml('Funciones y tareas principales')+taHtml('dp-b1-funciones',pl?.bloque_1?.funciones,'Lista las responsabilidades clave del puesto...',4);
+
+  // Bloque 2
+  html+=secHtml('2','El perfil');
+  html+=lblHtml('Formación requerida')+fiHtml('dp-b2-form',pl?.bloque_2?.formacion,'Ej: Grado en ADE o FP Grado Superior en Contabilidad');
+  html+=lblHtml('Competencias técnicas')+taHtml('dp-b2-tec',pl?.bloque_2?.competencias_tecnicas,'Conocimientos y herramientas necesarios para el puesto...',3);
+  html+=lblHtml('Competencias transversales')+taHtml('dp-b2-tra',pl?.bloque_2?.competencias_transversales,'Comunicación, orientación al cliente, trabajo en equipo...',3);
+
+  // Bloque 3
+  html+=secHtml('3','El desarrollo');
+  html+=lblHtml('Camino de evolución natural')+fiHtml('dp-b3-camino',pl?.bloque_3?.camino,'Ej: Asesor/a Contable N3 o Responsable de Área');
+  html+=lblHtml('Qué debe demostrar para avanzar')+taHtml('dp-b3-demo',pl?.bloque_3?.que_debe_demostrar,'Capacidades, logros y comportamientos que marcan el salto al siguiente nivel...',4);
+
+  html+='</div>'; // fin body
+
+  // Footer
+  html+='<div style="padding:14px 22px;border-top:1px solid var(--bd);display:flex;gap:10px;background:var(--wh);flex-shrink:0">';
+  html+='<button class="btn go" style="flex:1;justify-content:center;font-size:13px" onclick="dpGuardar(\''+(pl?.id||'')+'\')">'+(isNew?'Crear ficha de puesto':'Guardar cambios')+'</button>';
+  html+='<button class="btn lt" style="padding:10px 16px;font-size:13px" onclick="dpCerrarModal()">Cancelar</button>';
+  html+='</div>';
+  html+='<div id="dp-st" style="font-size:11px;color:var(--red);text-align:center;padding:0 22px 10px;min-height:14px"></div>';
+  html+='</div>'; // fin container
+
+  // Usar el overlay del modal existente pero poner nuestro HTML directamente en él
+  const bg=document.getElementById('modal-bg');
+  if(!bg) return;
+  // Limpiar el modal-inner y poner nuestro contenido en el bg directamente como flex overlay
+  bg.innerHTML='<div onclick="if(event.target===this)dpCerrarModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px" id="dp-modal-overlay">'+html+'</div>';
+  bg.classList.add('open');
+  bg.style.display='block';
+  bg.style.background='none';
+  bg.style.zIndex='9000';
 }
+
+function dpCerrarModal(){
+  const bg=document.getElementById('modal-bg');
+  if(bg){
+    bg.classList.remove('open');
+    bg.style.display='none';
+    bg.style.background='';
+    bg.style.zIndex='';
+    bg.innerHTML='<div class="modal" id="modal-inner"></div>';
+  }
+}
+
 
 async function dpGuardar(id){
   const g=s=>document.getElementById(s)?.value||'';
