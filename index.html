@@ -812,9 +812,10 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
           FAQs
         </div>
         <div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding-bottom:2px" id="ay-tab-actions">
-          <button class="btn lt" onclick="ayAll(true)">Expandir todo</button>
-          <button class="btn lt" onclick="ayAll(false)">Contraer todo</button>
-          <button class="btn lt" onclick="window.print()">Imprimir / PDF</button>
+          <button class="btn lt" style="display:flex;align-items:center;gap:5px" onclick="descargarGuia()">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2"/></svg>
+            Descargar guía
+          </button>
         </div>
       </div>
       <!-- Tab 1: Guión -->
@@ -1207,7 +1208,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 //  CACHÉ EN MEMORIA — sustituye localStorage para datos de negocio
 //  localStorage solo persiste: K.A (UI áreas)
 // ═══════════════════════════════════════════════════════════════════════════
-const K={A:'pb6_areas'};
+const K={A:'pb6_areas',G:'pb_guion_state'};
 
 // Caché principal — se llena en initApp() y se mantiene sincronizado
 const C={
@@ -3112,7 +3113,7 @@ function rendAY(){
   let blocksH='';
   BLOQUES.forEach(b=>{
     const bid='ay-b'+b.num;
-    const open=gState[bid]!==false;
+    const open=gState[bid]===true;
     blocksH+=`<div class="ay-block" id="${bid}">`;
     blocksH+=`<div class="ay-hdr" onclick="ayTog('${bid}')">`;
     blocksH+=`<div class="ay-badge"><span style="font-size:12px;font-weight:600;color:var(--oro)">B${b.num}</span></div>`;
@@ -3166,8 +3167,265 @@ function rendAY(){
   document.getElementById('ay-tips').innerHTML=tips.map(tip=>`<div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden"><div style="background:var(--sb);padding:10px 14px;font-size:10px;font-weight:700;color:var(--oro);text-transform:uppercase;letter-spacing:0.7px">${tip.t}</div><div style="padding:12px 14px">${tip.items.map(x=>`<div style="display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--cD);font-size:12.5px;color:var(--tx2);line-height:1.5"><div style="width:5px;height:5px;border-radius:50%;background:var(--oro);flex-shrink:0;margin-top:7px"></div>${x}</div>`).join('')}</div></div>`).join('');
 }
 
-// Abre Ajustes directamente en la pestaña Plantillas → sub-tab OTO
-function cfgTabDesdeAY(){
+// Guia completa descargable
+function descargarGuia(){
+  const fecha = new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+
+  // Build blocks HTML
+  let blocksHtml = '';
+  BLOQUES.forEach(b=>{
+    let preguntas = '';
+
+    const renderRows = (rows, subtitle='')=>{
+      if(!rows||!rows.length) return '';
+      let h = subtitle ? `<div class="sub">${subtitle}</div>` : '';
+      h += '<table><thead><tr><th>Foco</th><th>Pregunta / afirmación</th></tr></thead><tbody>';
+      rows.forEach(r=>{
+        h += `<tr class="${r.lit?'lit':''}"><td>${r.tag}</td><td>${r.txt}</td></tr>`;
+      });
+      h += '</tbody></table>';
+      return h;
+    };
+
+    if(b.rows) preguntas += renderRows(b.rows);
+    if(b.subs) b.subs.forEach(s=>{ preguntas += renderRows(s.rows, s.s); });
+
+    // Feedback Wrap section
+    let wrapHtml = '';
+    if(b.wrap){
+      wrapHtml = `<div class="wrap-box">
+        <div class="wrap-title">Feedback Wrap — preparar antes de la sesión</div>
+        ${['Contexto','Observación objetiva','Reconocimiento genuino','Necesidad real','Sugerencia concreta'].map((l,i)=>`
+          <div class="wrap-step">
+            <div class="step-n">${i+1}</div>
+            <div><div class="step-l">${l}</div></div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    // Compromisos section
+    let compHtml = '';
+    if(b.comp){
+      compHtml = `<div class="comp-grid">
+        <div class="comp-col">
+          <div class="comp-head">Compromisos del colaborador/a</div>
+          ${[1,2,3].map(i=>`<div class="comp-line"><span class="dot">·</span><div class="line-blank"></div></div>`).join('')}
+        </div>
+        <div class="comp-col">
+          <div class="comp-head">Compromisos del responsable</div>
+          ${[1,2,3].map(i=>`<div class="comp-line"><span class="dot">·</span><div class="line-blank"></div></div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    // Cierre checklist
+    let cierreHtml = '';
+    if(b.cierre){
+      cierreHtml = `<div class="cierre-list">
+        ${['Compromisos verbalizados en voz alta','Próxima fecha confirmada en la agenda','Resumen por email en 24-48h','Ficha de formación actualizada si aplica'].map(t=>`
+          <div class="cierre-item"><div class="check-box"></div><span>${t}</span></div>`).join('')}
+        <div style="margin-top:12px;padding:10px 14px;background:#F7F4EF;border-radius:6px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:11px;color:#8A8880;font-weight:500">Próxima sesión:</span>
+          <div style="flex:1;border-bottom:2px solid #D8A55F"></div>
+        </div>
+      </div>`;
+    }
+
+    const d = AY_DETAIL[b.num]||{};
+
+    blocksHtml += `
+    <div class="block">
+      <div class="block-hd">
+        <div class="block-num">${b.num}</div>
+        <div class="block-info">
+          <div class="block-title">${b.t}</div>
+          <div class="block-meta">${b.min} min</div>
+        </div>
+      </div>
+      <div class="block-hint">${b.hint}</div>
+      ${d.frase ? `<div class="frase">"${d.frase}"</div>` : ''}
+      ${preguntas}
+      ${wrapHtml}
+      ${compHtml}
+      ${cierreHtml}
+      ${d.error ? `<div class="error-box"><strong>⚠ Error frecuente:</strong> ${d.error}</div>` : ''}
+    </div>`;
+  });
+
+  // Tips section
+  const tips = [
+    {t:'Antes de la sesión',items:['Revisa el historial y los compromisos de la sesión anterior','Prepara un reconocimiento concreto y un ejemplo de mejora','Consulta la DPT y el nivel de la persona','Bloquea 45 min en el calendario — con hora fija es más fácil mantener la cadencia']},
+    {t:'Durante la sesión',items:['La persona habla el 60% del tiempo — escucha más que hablas','Empieza el B3 siempre por el reconocimiento genuino','Sé específico: hechos y observaciones, no impresiones','No improvises el Feedback Wrap — construye cada parte antes de entrar']},
+    {t:'Después de la sesión',items:['Envía el resumen con compromisos en 24-48h — incluye los tuyos','Actualiza la ficha si hay cambios en el puesto o el desarrollo','Cumple tus compromisos antes de la siguiente sesión']}
+  ];
+  const tipsHtml = tips.map(tip=>`
+    <div class="tip-card">
+      <div class="tip-title">${tip.t}</div>
+      ${tip.items.map(i=>`<div class="tip-item"><span>·</span>${i}</div>`).join('')}
+    </div>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guía OTO BIPLAZA — Metodología CFR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;color:#18181A;background:#fff;max-width:800px;margin:0 auto;padding:32px 40px}
+  @media print{body{padding:16px 20px}@page{margin:20mm;size:A4}.no-print{display:none}html,body{max-width:none}}
+
+  /* HEADER */
+  .doc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #23282E}
+  .doc-logo{font-size:9px;font-weight:700;letter-spacing:2.5px;color:#23282E;border:1.5px solid #D8A55F;padding:4px 9px;display:inline-block;text-transform:uppercase}
+  .doc-meta{text-align:right}
+  .doc-title{font-size:22px;font-weight:300;color:#23282E;line-height:1.2}
+  .doc-title strong{font-weight:700;color:#D8A55F}
+  .doc-sub{font-size:11px;color:#8A8880;margin-top:4px}
+  .doc-date{font-size:10px;color:#B8B5AE;margin-top:3px}
+
+  /* PILLS */
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+  .pill{background:#F5E6CC;border:1px solid #EDD9B0;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:500;color:#A07030}
+
+  /* INTRO BOX */
+  .intro-box{background:#F7F4EF;border-left:3px solid #D8A55F;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:24px}
+  .intro-box .label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8A8880;margin-bottom:5px}
+  .intro-box p{font-size:12.5px;color:#52524E;line-height:1.65}
+
+  /* STRUCTURE OVERVIEW */
+  .overview{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:28px}
+  .ov-card{border:1px solid #EDE8DF;border-radius:8px;padding:10px 8px;text-align:center}
+  .ov-num{width:24px;height:24px;border-radius:50%;background:#23282E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#D8A55F;margin:0 auto 6px}
+  .ov-label{font-size:10px;font-weight:600;color:#18181A;line-height:1.3}
+  .ov-min{font-size:9px;color:#8A8880;margin-top:3px}
+  .ov-bar{height:2px;background:#D8A55F;border-radius:1px;margin-top:8px}
+
+  /* BLOCKS */
+  .block{margin-bottom:24px;page-break-inside:avoid}
+  .block-hd{background:#23282E;display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:8px 8px 0 0}
+  .block-num{width:28px;height:28px;border-radius:50%;background:rgba(216,165,95,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#D8A55F;flex-shrink:0}
+  .block-title{font-size:14px;font-weight:600;color:#fff}
+  .block-meta{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
+  .block-hint{background:#F7F4EF;padding:10px 16px;font-size:12px;color:#52524E;line-height:1.6;border:1px solid #EDE8DF;border-top:none}
+  .frase{background:#FDF3E3;border-left:3px solid #D8A55F;padding:10px 14px;font-size:12px;color:#A07030;font-style:italic;border:1px solid #EDD9B0;border-left:3px solid #D8A55F;margin:0}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #EDE8DF;border-top:none}
+  thead th{background:#23282E;color:rgba(255,255,255,0.75);padding:7px 11px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase}
+  tbody tr td{padding:8px 11px;border-bottom:1px solid #EDE8DF;vertical-align:top}
+  tbody tr td:first-child{width:90px;font-weight:600;font-size:10px;color:#18181A;background:#FAFAF8;white-space:nowrap}
+  tbody tr.lit td:last-child{color:#A07030;font-style:italic;background:#FDF8EE;border-left:2px solid #D8A55F}
+  .sub{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#A07030;padding:8px 11px;background:#FDF8EE;border:1px solid #EDE8DF;border-top:none}
+
+  /* FEEDBACK WRAP */
+  .wrap-box{background:#FDF8EE;border:1px solid #EDD9B0;border-top:none;padding:14px 16px}
+  .wrap-title{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#A07030;margin-bottom:10px}
+  .wrap-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+  .step-n{width:20px;height:20px;border-radius:50%;background:#D8A55F;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#23282E;flex-shrink:0;margin-top:1px}
+  .step-l{font-size:11px;font-weight:600;color:#A07030}
+
+  /* COMPROMISOS */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;border:1px solid #EDE8DF;border-top:none;padding:14px 16px}
+  .comp-head{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#8A8880;margin-bottom:8px;padding-bottom:4px;border-bottom:1.5px solid #D8A55F}
+  .comp-line{display:flex;gap:8px;margin-bottom:12px;align-items:flex-end}
+  .dot{color:#D8A55F;font-weight:700;font-size:16px;line-height:1}
+  .line-blank{flex:1;border-bottom:1px solid #EDE8DF;padding-bottom:14px}
+
+  /* CIERRE */
+  .cierre-list{border:1px solid #EDE8DF;border-top:none;padding:12px 16px}
+  .cierre-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #F7F4EF}
+  .check-box{width:16px;height:16px;border:1.5px solid #EDE8DF;border-radius:3px;flex-shrink:0}
+
+  /* ERROR BOX */
+  .error-box{background:#FDF0EB;border:1px solid #F5C4B3;border-top:none;padding:10px 14px;font-size:11.5px;color:#C84B20;line-height:1.6}
+
+  /* TIPS */
+  .tips-section{margin-top:28px;page-break-inside:avoid}
+  .section-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8A8880;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #EDE8DF}
+  .tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .tip-card{border:1px solid #EDE8DF;border-radius:8px;overflow:hidden}
+  .tip-title{background:#23282E;padding:9px 12px;font-size:9px;font-weight:700;color:#D8A55F;text-transform:uppercase;letter-spacing:0.7px}
+  .tip-item{display:flex;gap:7px;padding:6px 12px;border-bottom:1px solid #F7F4EF;font-size:11px;color:#52524E;line-height:1.5}
+  .tip-item span{color:#D8A55F;font-weight:700;flex-shrink:0;margin-top:1px}
+
+  /* FOOTER */
+  .doc-footer{margin-top:32px;padding-top:12px;border-top:1px solid #EDE8DF;display:flex;justify-content:space-between;align-items:center}
+  .doc-footer-l{font-size:9px;color:#B8B5AE}
+  .doc-footer-r{font-size:9px;color:#B8B5AE}
+
+  /* PRINT BUTTON */
+  .print-bar{position:fixed;bottom:20px;right:20px;z-index:999}
+  .print-btn{background:#D8A55F;color:#23282E;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(216,165,95,0.4)}
+  .print-btn:hover{opacity:0.9}
+</style>
+</head>
+<body>
+
+<div class="no-print print-bar">
+  <button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+</div>
+
+<div class="doc-header">
+  <div>
+    <div class="doc-logo">BIPLAZA</div>
+    <div style="margin-top:12px">
+      <div class="doc-title">Guía de Reuniones <strong>One to One</strong></div>
+      <div class="doc-sub">Personas & Cultura · Metodología CFR</div>
+    </div>
+  </div>
+  <div class="doc-meta">
+    <div class="doc-date">Generado el ${fecha}</div>
+    <div style="font-size:9px;color:#B8B5AE;margin-top:3px;font-style:italic">Uso interno · Confidencial</div>
+  </div>
+</div>
+
+<div class="pill-row">
+  <span class="pill">30-45 min</span>
+  <span class="pill">Cada 45-90 días</span>
+  <span class="pill">Individual · Privado</span>
+  <span class="pill">Doble feedback</span>
+  <span class="pill">Metodología CFR</span>
+</div>
+
+<div class="intro-box">
+  <div class="label">Objetivo de la reunión</div>
+  <p>Esta reunión tiene un doble propósito: recoger feedback del equipo sobre tareas, procesos y clima laboral; y ofrecer feedback personalizado sobre actitud, reconocimiento, formación y nivel competencial.</p>
+</div>
+
+<div class="overview">
+  ${BLOQUES.map(b=>`
+  <div class="ov-card">
+    <div class="ov-num">${b.num}</div>
+    <div class="ov-label">${b.t}</div>
+    <div class="ov-min">${b.min} min</div>
+    <div class="ov-bar"></div>
+  </div>`).join('')}
+</div>
+
+${blocksHtml}
+
+<div class="tips-section">
+  <div class="section-title">Guía rápida</div>
+  <div class="tips-grid">${tipsHtml}</div>
+</div>
+
+<div class="doc-footer">
+  <div class="doc-footer-l">BIPLAZA Personas & Cultura — PULSO</div>
+  <div class="doc-footer-r">Uso interno · No distribuir</div>
+</div>
+
+</body>
+</html>`;
+
+  const w = window.open('', '_blank', 'width=900,height=750');
+  if(!w){ alert('Permite ventanas emergentes para descargar la guía.'); return; }
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{ w.focus(); }, 300);
+}
+
+
   openSettings();
   setTimeout(()=>{ cfgTab(3); setTimeout(()=>pvTab(1), 50); }, 100);
 }
