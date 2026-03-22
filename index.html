@@ -3624,16 +3624,43 @@ async function beniEnviar(){
     return;
   }
 
-  // Libre con contexto de pantalla activa
+  // Construir contexto completo del equipo (siempre disponible)
+  const equipo=C.team.filter(p=>p.on);
+  const porArea={};
+  equipo.forEach(p=>{
+    if(!porArea[p.a]) porArea[p.a]=[];
+    porArea[p.a].push({nombre:p.n,nivel:p.nv});
+  });
+  const resumenEquipo={
+    total:equipo.length,
+    por_area:Object.entries(porArea).map(([area,personas])=>({area,total:personas.length,personas})),
+    sesiones_registradas:C.hist.length,
+    fecha_hoy:td(),
+    herramienta_estado:'arranque — primeras sesiones en curso durante marzo-abril 2026'
+  };
+
+  // Si hay persona activa en pantalla, añadir su historial
   const nombre=profPerson?.n||pAct?.n||null;
   const contexto=nombre?{
-    persona:nombre,area:C.pmap[nombre]?.a,pregunta:txt,
+    pregunta:txt,
+    persona:nombre,
+    area:C.pmap[nombre]?.a,
+    nivel:C.pmap[nombre]?.nv,
     historial:C.hist.filter(s=>s.p?.n===nombre).slice(0,5).map(s=>({
       fecha:s.f,
-      compromisos:s.c?.c?.filter(Boolean)||[],
+      compromisos_persona:s.c?.c?.filter(Boolean)||[],
+      compromisos_responsable:s.c?.r?.filter(Boolean)||[],
       notas:Object.values(s.n||{}).filter(Boolean).join(' | ')
+    })),
+    equipo:resumenEquipo
+  }:{
+    pregunta:txt,
+    equipo:resumenEquipo,
+    historial_global:C.hist.slice(0,10).map(s=>({
+      persona:s.p?.n,area:s.p?.a,fecha:s.f,
+      compromisos:(s.c?.c||[]).filter(Boolean).length
     }))
-  }:{pregunta:txt,total_equipo:C.team.filter(p=>p.on).length};
+  };
   await beniLlamar('libre',contexto,nombre,[..._beniMsgs.slice(-6)]);
 }
 
@@ -3708,7 +3735,7 @@ async function beniLlamar(tipo,contexto,persona,mensajes){
       return '';
     }
     const txt=data.respuesta||'';
-    beniReplaceMsg(loadId,txt.replace(/\n/g,'<br>'));
+    beniReplaceMsg(loadId,beniFmt(txt));
     _beniMsgs.push({role:'assistant',content:txt});
     // Persistir en Supabase en segundo plano
     (async()=>{try{const {data:{user}}=await sb.auth.getUser();if(!user)return;const pid=persona?C.pmap[persona]?.id:null;await sb.from('beni_conversaciones').insert({usuario_id:user.id,persona_id:pid||null,tipo,contexto,mensajes:_beniMsgs.slice(-20)});}catch(e){console.warn('Beni persist',e);}})();
@@ -3726,6 +3753,17 @@ function beniAddMsg(role,html,id){
   el.appendChild(div);
   el.scrollTop=el.scrollHeight;
   if(role==='user') _beniMsgs.push({role:'user',content:html});
+}
+
+
+// ── Formateador de texto de Beni ─────────────────────────────────────────────
+// Convierte markdown residual en HTML y limpia el formato
+function beniFmt(txt){
+  if(!txt) return '';
+  txt=txt.replace(/[*][*]([^*]+)[*][*]/g,'<strong>$1</strong>');
+  txt=txt.replace(/\n/g,'<br>');
+  txt=txt.replace(/(<br>)+(<br>)/g,'<br><br>');
+  return txt.trim();
 }
 
 function beniReplaceMsg(id,html){
@@ -3759,11 +3797,11 @@ async function beniAnalizarSesion(ses){
   const txt=document.getElementById('beni-postsave-txt');
   if(banner) banner.style.display='block';
   const respuesta=await beniLlamarSilencioso('analisis_sesion',contexto,ses.p.n);
-  if(txt&&respuesta) txt.innerHTML=respuesta.replace(/\n/g,'<br>');
+  if(txt&&respuesta) txt.innerHTML=beniFmt(respuesta);
   // También en Beni si está abierto
   if(_beniOpen){
     beniUpdateCtxLbl(ses.p.n);
-    beniAddMsg('beni',respuesta.replace(/\n/g,'<br>'));
+    beniAddMsg('beni',beniFmt(respuesta));
   }
 }
 
@@ -3879,7 +3917,7 @@ async function beniDPTDesdeHistorial(nombre){
   openMo();
   const respuesta=await beniLlamarSilencioso('dpt_desde_historial',contexto,nombre);
   const el=document.getElementById('beni-dpt-resultado');
-  if(el&&respuesta) el.innerHTML=respuesta.replace(/\n/g,'<br>');
+  if(el&&respuesta) el.innerHTML=beniFmt(respuesta);
 }
 
 // ── Señales de riesgo ─────────────────────────────────────────────────────
@@ -3922,7 +3960,7 @@ async function beniSeñalesRiesgo(){
 
   const contexto={alertas_detectadas:alertasDetectadas,resumen_equipo:resumen,total:equipo.length,fecha:hoy};
   const respuesta=await beniLlamarSilencioso('senales_riesgo',contexto,null);
-  if(txt&&respuesta) txt.innerHTML=respuesta.replace(/\n/g,'<br>');
+  if(txt&&respuesta) txt.innerHTML=beniFmt(respuesta);
 }
 
 // ── Motor silencioso (sin mostrar en Beni drawer) ───────────────────────────
