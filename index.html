@@ -1313,6 +1313,115 @@ async function saveH_db(sesObj){
   return data;
 }
 
+
+async function deleteH_db(sesObj){
+  if(!sesObj._id) throw new Error('Sin ID de sesión');
+  const {error}=await sb.from('sesiones').delete().eq('id',sesObj._id);
+  if(error) throw error;
+  C.hist=C.hist.filter(s=>s._id!==sesObj._id);
+}
+
+function confirmarEliminarSes(sesObj){
+  const nombre=sesObj.p?.n||'esta persona';
+  const fecha=sesObj.f||'';
+  if(!confirm(`¿Eliminar la sesión de ${nombre} del ${fecha}?\n\nEsta acción no se puede deshacer.`)) return;
+  deleteH_db(sesObj).then(()=>{
+    rendHi();
+    rendDB();
+    rendProf();
+    // Refresh en perfil si está abierto
+    if(profPerson?.n===nombre) rendProf();
+  }).catch(e=>{
+    alert('Error al eliminar: '+e.message);
+  });
+}
+
+function abrirEditarSes(sesObj){
+  const bg=document.getElementById('modal-bg');
+  const inner=document.getElementById('modal-inner');
+  if(!bg||!inner) return;
+
+  const cc=(sesObj.c?.c||[]).filter(Boolean);
+  const cr=(sesObj.c?.r||[]).filter(Boolean);
+  const notas=Object.values(sesObj.n||{}).filter(Boolean).join('\n');
+
+  inner.style.cssText='background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);padding:0;max-height:90vh;display:flex;flex-direction:column;width:560px;max-width:95vw';
+  inner.innerHTML=`
+    <div style="background:var(--sb);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:15px;font-weight:500;color:var(--wh)">Editar sesión</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">${sesObj.p?.n||''} · ${sesObj.f||''}</div>
+      </div>
+      <button onclick="closeModal()" style="background:rgba(255,255,255,0.08);border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;display:block;margin-bottom:5px">Compromisos de ${sesObj.p?.n||'la persona'}</label>
+        <textarea id="edit-cc" rows="3" style="width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:var(--r2);font-size:12.5px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:vertical;line-height:1.6;box-sizing:border-box">${cc.join('\n')}</textarea>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px">Un compromiso por línea</div>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;display:block;margin-bottom:5px">Compromisos del responsable</label>
+        <textarea id="edit-cr" rows="3" style="width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:var(--r2);font-size:12.5px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:vertical;line-height:1.6;box-sizing:border-box">${cr.join('\n')}</textarea>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px">Un compromiso por línea</div>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;display:block;margin-bottom:5px">Notas adicionales</label>
+        <textarea id="edit-notas" rows="3" style="width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:var(--r2);font-size:12.5px;font-family:var(--f);color:var(--tx);background:var(--wh);resize:vertical;line-height:1.6;box-sizing:border-box">${notas}</textarea>
+      </div>
+      <div id="edit-ses-err" style="display:none;font-size:12px;color:var(--red);background:var(--redB);border:1px solid var(--redL);border-radius:var(--r2);padding:8px 12px"></div>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid var(--bd);display:flex;gap:8px;flex-shrink:0">
+      <button onclick="closeModal()" style="flex:1;padding:10px;background:none;border:1px solid var(--bd);border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--f);color:var(--tx2)">Cancelar</button>
+      <button onclick="guardarEditSes()" id="edit-ses-btn" style="flex:2;padding:10px;background:var(--sb);border:none;border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--f);color:var(--oro)">Guardar cambios</button>
+    </div>
+  `;
+  // Store reference to session being edited
+  inner._editingSes=sesObj;
+  bg.classList.add('open');
+}
+
+async function guardarEditSes(){
+  const inner=document.getElementById('modal-inner');
+  const sesObj=inner._editingSes;
+  if(!sesObj?._id) return;
+
+  const btn=document.getElementById('edit-ses-btn');
+  const errEl=document.getElementById('edit-ses-err');
+  if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  if(errEl) errEl.style.display='none';
+
+  // Parse new values
+  const ccRaw=document.getElementById('edit-cc')?.value||'';
+  const crRaw=document.getElementById('edit-cr')?.value||'';
+  const notasRaw=document.getElementById('edit-notas')?.value||'';
+
+  const cc=ccRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const cr=crRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  // Build updated fields
+  const updates={
+    compromisos_persona:cc,
+    compromisos_responsable:cr,
+    notas:{extra:notasRaw},
+  };
+
+  try{
+    const {error}=await sb.from('sesiones').update(updates).eq('id',sesObj._id);
+    if(error) throw error;
+    // Update local cache
+    sesObj.c={c:cc.concat(['','']).slice(0,3),r:cr.concat(['','']).slice(0,3)};
+    sesObj.n={extra:notasRaw};
+    closeModal();
+    rendHi();
+    rendDB();
+    if(profPerson?.n===sesObj.p?.n) rendProf();
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Guardar cambios';}
+    if(errEl){errEl.textContent='Error: '+e.message;errEl.style.display='block';}
+  }
+}
+
 async function saveP_db(persona,fecha,hora=null){
   const pid=C.pmap[persona]?.id;
   if(!pid) throw new Error('Persona no encontrada: '+persona);
@@ -2527,7 +2636,7 @@ function rendHi(){
         qrHtml+=`</div>`;
       });
     }
-    return `<div class="hi-item"><div class="hi-hd" onclick="this.nextElementSibling.classList.toggle('open')"><div class="av-sm">${ini(s.p.n)}</div><div style="flex:1;margin-left:8px"><div style="font-size:13px;font-weight:500;cursor:pointer;color:var(--tx)" onclick="event.stopPropagation();openProfDirect('${s.p.n}')">${s.p.n} <span style="font-size:10px;color:var(--oroD);font-weight:600">→ ver ficha</span></div><div style="font-size:11px;color:var(--tx3)">${s.p.a} · ${s.p.nv}</div></div><div style="font-size:12px;color:var(--tx3);margin-right:10px">${s.f}</div>${s.first?'<span class="pill p-amb" style="margin-right:7px">Primera sesión</span>':''}${cc.length?`<span class="pill p-amb" style="margin-right:7px">${cc.length} comp.</span>`:''}${s.prx?`<span class="pill p-oro" style="margin-right:7px">Próx: ${fmtD(s.prx)}</span>`:''}<button onclick="event.stopPropagation();imprimirSesion(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2"/></svg>Descargar</button><svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--tx3)"><polyline points="6,9 12,15 18,9" stroke-width="2"/></svg></div><div class="hi-body">${qrHtml?`<div class="hi-sec">Respuestas de la sesión</div>${qrHtml}`:''}${nt.length?`<div class="hi-sec">Notas adicionales</div>${nt.map(n=>`<div style="font-size:12.5px;color:var(--tx2);padding:3px 0;line-height:1.5">${n}</div>`).join('')}`:''}${cc.length?`<div class="hi-sec">Compromisos de ${s.p.n}</div>${cc.map(x=>`<div style="display:flex;gap:6px;font-size:12.5px;color:var(--tx2);padding:3px 0"><span style="color:var(--amb)">·</span>${x}</div>`).join('')}`:''}${cr.length?`<div class="hi-sec">Compromisos responsable</div>${cr.map(x=>`<div style="display:flex;gap:6px;font-size:12.5px;color:var(--tx2);padding:3px 0"><span style="color:var(--oro)">·</span>${x}</div>`).join('')}`:''}${Object.values(s.fw||{}).some(Boolean)?`<div class="hi-sec">Feedback Wrap</div><div style="font-size:12.5px;color:var(--tx2);line-height:1.6">${['Contexto','Observación','Reconocimiento','Necesidad','Sugerencia'].map((l,j)=>s.fw?.['fw'+(j+1)]?`<b>${l}:</b> ${s.fw['fw'+(j+1)]}`:'').filter(Boolean).join(' · ')}</div>`:''}</div></div>`;
+    return `<div class="hi-item"><div class="hi-hd" onclick="this.nextElementSibling.classList.toggle('open')"><div class="av-sm">${ini(s.p.n)}</div><div style="flex:1;margin-left:8px"><div style="font-size:13px;font-weight:500;cursor:pointer;color:var(--tx)" onclick="event.stopPropagation();openProfDirect('${s.p.n}')">${s.p.n} <span style="font-size:10px;color:var(--oroD);font-weight:600">→ ver ficha</span></div><div style="font-size:11px;color:var(--tx3)">${s.p.a} · ${s.p.nv}</div></div><div style="font-size:12px;color:var(--tx3);margin-right:10px">${s.f}</div>${s.first?'<span class="pill p-amb" style="margin-right:7px">Primera sesión</span>':''}${cc.length?`<span class="pill p-amb" style="margin-right:7px">${cc.length} comp.</span>`:''}${s.prx?`<span class="pill p-oro" style="margin-right:7px">Próx: ${fmtD(s.prx)}</span>`:''}<button onclick="event.stopPropagation();imprimirSesion(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2"/></svg>Descargar</button><button onclick="event.stopPropagation();abrirEditarSes(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/></svg>Editar</button><button onclick="event.stopPropagation();confirmarEliminarSes(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--red)';this.style.background='var(--redB)'" onmouseout="this.style.borderColor='var(--bd)';this.style.background='var(--cream)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke-width="2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke-width="2"/><path d="M10 11v6M14 11v6" stroke-width="2"/></svg>Eliminar</button><svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--tx3)"><polyline points="6,9 12,15 18,9" stroke-width="2"/></svg></div><div class="hi-body">${qrHtml?`<div class="hi-sec">Respuestas de la sesión</div>${qrHtml}`:''}${nt.length?`<div class="hi-sec">Notas adicionales</div>${nt.map(n=>`<div style="font-size:12.5px;color:var(--tx2);padding:3px 0;line-height:1.5">${n}</div>`).join('')}`:''}${cc.length?`<div class="hi-sec">Compromisos de ${s.p.n}</div>${cc.map(x=>`<div style="display:flex;gap:6px;font-size:12.5px;color:var(--tx2);padding:3px 0"><span style="color:var(--amb)">·</span>${x}</div>`).join('')}`:''}${cr.length?`<div class="hi-sec">Compromisos responsable</div>${cr.map(x=>`<div style="display:flex;gap:6px;font-size:12.5px;color:var(--tx2);padding:3px 0"><span style="color:var(--oro)">·</span>${x}</div>`).join('')}`:''}${Object.values(s.fw||{}).some(Boolean)?`<div class="hi-sec">Feedback Wrap</div><div style="font-size:12.5px;color:var(--tx2);line-height:1.6">${['Contexto','Observación','Reconocimiento','Necesidad','Sugerencia'].map((l,j)=>s.fw?.['fw'+(j+1)]?`<b>${l}:</b> ${s.fw['fw'+(j+1)]}`:'').filter(Boolean).join(' · ')}</div>`:''}</div></div>`;
   }).join('');
 }
 
@@ -2662,7 +2771,7 @@ function rendProf(){
       h+=`<div style="display:flex;flex-direction:column;align-items:center;min-width:38px"><div style="font-size:12px;font-weight:700;color:${sidx===0?'var(--oroD)':'var(--tx3)'}">${s.f.split('/')[0]}</div><div style="font-size:10px;color:var(--tx4)">${s.f.split('/').slice(1).join('/')}</div></div>`;
       h+=`<div style="width:1px;height:30px;background:var(--cD)"></div>`;
       h+=`<div style="flex:1;margin-left:8px"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:13px;font-weight:500">Sesión #${hist.length-sidx}</span>${s.first?'<span class=\'pill p-amb\'>Primera sesión</span>':''}<span class="pill p-${complete?'ok':'amb'}">${complete?'Completa':'Parcial'}</span></div><div style="font-size:11px;color:var(--tx3);margin-top:2px">${cc.length} comp. ${p.n} · ${cr.length} comp. responsable</div></div>`;
-      h+=`<button onclick="event.stopPropagation();imprimirSesion(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2"/></svg>Descargar</button><svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--tx3);flex-shrink:0"><polyline points="6,9 12,15 18,9" stroke-width="2"/></svg>`;
+      h+=`<button onclick="event.stopPropagation();imprimirSesion(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2"/></svg>Descargar</button><button onclick="event.stopPropagation();abrirEditarSes(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--oro)';this.style.color='var(--oroD)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--tx3)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/></svg>Editar</button><button onclick="event.stopPropagation();confirmarEliminarSes(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}')))" style="background:var(--cream);border:1px solid var(--bd);border-radius:var(--r3);padding:3px 9px;font-size:10px;font-weight:600;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--f);flex-shrink:0" onmouseover="this.style.borderColor='var(--red)';this.style.background='var(--redB)'" onmouseout="this.style.borderColor='var(--bd)';this.style.background='var(--cream)'"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke-width="2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke-width="2"/><path d="M10 11v6M14 11v6" stroke-width="2"/></svg>Eliminar</button><svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--tx3);flex-shrink:0"><polyline points="6,9 12,15 18,9" stroke-width="2"/></svg>`;
       h+=`</div>`;
       h+=`<div class="shi-body">`;
       // Per-question responses
