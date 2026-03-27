@@ -1004,11 +1004,6 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
 // ── Error global para diagnóstico ────────────────────────────────────────────
 window.addEventListener('error', function(e){
   console.error('PULSO ERROR:', e.message, 'en', e.filename, 'línea', e.lineno);
-  const d=document.createElement('div');
-  d.style.cssText='position:fixed;bottom:10px;left:10px;right:10px;background:#C84B20;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-family:monospace;z-index:99999;max-height:120px;overflow:auto';
-  d.textContent='Error JS: '+e.message+' (línea '+e.lineno+')';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(), 10000);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
