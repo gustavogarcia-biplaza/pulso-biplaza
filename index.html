@@ -1224,6 +1224,17 @@ if(typeof supabase === 'undefined'){
 }
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
+/** Devuelve headers con JWT de sesión activa para llamadas a Edge Functions. */
+async function getAuthHeaders(){
+  const { data:{ session } } = await sb.auth.getSession();
+  const token = session?.access_token || '';
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type':  'application/json',
+    'apikey':        SB_KEY,
+  };
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  CACHÉ EN MEMORIA — sustituye localStorage para datos de negocio
 //  localStorage solo persiste: K.A (UI áreas)
@@ -3146,9 +3157,9 @@ const AZURE_TENANT  = '76026b37-0e1b-4c67-a198-530d66f8884d';
 async function facCall(endpoint, params={}){
   const qs=new URLSearchParams({endpoint,...params}).toString();
   try{
-    const resp=await fetch(`${FAC_PROXY}?${qs}`,{
-      headers:{'apikey':FAC_KEY}
-    });
+    const headers=await getAuthHeaders();
+    const resp=await fetch(`${FAC_PROXY}?${qs}`,{ headers });
+    if(resp.status===401){ console.warn('facCall 401: sesión caducada'); return null; }
     if(!resp.ok) return null;
     const data=await resp.json();
     return Array.isArray(data)?data:(data.data||data.employees||data.leaves||data.resources||null);
@@ -4873,9 +4884,10 @@ async function dpImportarDocumento(input){
     setSt('Generando ficha con Beni...');
 
     // Llamar a Beni para extraer la información
+    const _beniImportHdrs=await getAuthHeaders();
     const resp=await fetch(BENI_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':FAC_KEY},
+      headers:_beniImportHdrs,
       body:JSON.stringify({
         tipo:'importar_dpt',
         contexto:{
@@ -5536,12 +5548,17 @@ async function beniLlamar(tipo,contexto,persona,mensajes){
     if(persona){
       factorial_data=await facGetPersonaData(persona).catch(()=>null);
     }
+    const _beniHdrs=await getAuthHeaders();
     const resp=await fetch(BENI_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':FAC_KEY},
+      headers:_beniHdrs,
       body:JSON.stringify({tipo,contexto,persona,mensajes,usuario:C.nombreUsuario||null,factorial_data})
     });
     const data=await resp.json();
+    if(resp.status===401){
+      beniReplaceMsg(loadId,'⚠️ Sesión caducada. Recarga la página para continuar.');
+      return '';
+    }
     if(!resp.ok||data.error){
       const errMsg=data.error||'Sin respuesta de Beni';
       console.error('Beni error:',data);
@@ -5780,11 +5797,13 @@ async function beniSeñalesRiesgo(){
 // ── Motor silencioso (sin mostrar en Beni drawer) ───────────────────────────
 async function beniLlamarSilencioso(tipo,contexto,persona){
   try{
+    const headers=await getAuthHeaders();
     const resp=await fetch(BENI_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':FAC_KEY},
+      headers,
       body:JSON.stringify({tipo,contexto,persona,mensajes:[],usuario:C.nombreUsuario||null})
     });
+    if(!resp.ok) return null;
     const data=await resp.json();
     return data.respuesta||null;
   }catch(e){return null;}
