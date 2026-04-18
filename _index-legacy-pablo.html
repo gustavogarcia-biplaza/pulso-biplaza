@@ -224,12 +224,14 @@ textarea:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 3px rgba(21
 .step-row.act .step-t{color:var(--oroD);font-weight:600}.step-row.done .step-t{color:var(--ok)}
 .step-min{font-size:9px;color:var(--tx4);flex-shrink:0;white-space:nowrap}
 /* MM in session */
-.mm-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
-.mmc{background:var(--cream);border:1.5px solid var(--bd);border-radius:var(--r2);padding:9px 6px;cursor:pointer;text-align:center;transition:all 0.13s;user-select:none}
-.mmc:hover{border-color:var(--oro)}
+.mm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.mmc{background:var(--cream);border:1.5px solid var(--bd);border-radius:var(--r2);padding:11px 12px;cursor:pointer;transition:all 0.13s;user-select:none;display:flex;align-items:center;gap:10px;position:relative}
+.mmc:hover{border-color:var(--oro);background:var(--oroL)}
 .mmc.up{border-color:var(--ok);background:var(--okB)}.mmc.dn{border-color:var(--red);background:var(--redB)}
-.mme{font-size:18px;margin-bottom:3px}.mmn{font-size:10px;font-weight:700;color:var(--tx)}.mmd{font-size:9px;color:var(--tx3);line-height:1.3}.mms{font-size:9px;font-weight:700;margin-top:3px}
-.mmc.up .mms{color:var(--ok)}.mmc.dn .mms{color:var(--red)}
+.mme{font-size:22px;flex-shrink:0;line-height:1}.mminfo{position:absolute;top:7px;right:8px;width:15px;height:15px;border-radius:50%;background:rgba(216,165,95,0.15);border:1px solid rgba(216,165,95,0.3);color:var(--oroD);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0}.mminfo:hover .mmtip{display:block}
+.mmtip{display:none;position:absolute;top:22px;right:0;background:var(--sb);color:rgba(255,255,255,0.85);font-size:10px;line-height:1.5;padding:7px 10px;border-radius:6px;width:200px;z-index:50;pointer-events:none;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.mm-txt{flex:1;min-width:0}.mmn{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:1px}.mmd{font-size:10px;color:var(--tx3);line-height:1.3}.mms{font-size:10px;font-weight:700;margin-top:3px;min-height:14px}
+.mmc.up .mms{color:var(--ok)}.mmc.dn .mms{color:var(--red)}.mmc .mms{color:var(--tx4)}
 /* CALENDAR */
 .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .cal-m{font-size:16px;font-weight:500;color:var(--tx);flex:1}
@@ -642,7 +644,7 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
             <div class="ibox" style="padding:14px 16px"><div id="db-areas"></div></div>
           </div>
           <div>
-            <div class="sec">Moving Motivators <span class="tip"><span class="tip-i">?</span><span class="tip-b">Motivadores con más cambios registrados en sesiones.</span></span></div>
+            <div class="sec">Moving Motivators <span class="tip"><span class="tip-i">?</span><span class="tip-b">Motivadores que más han cambiado entre sesiones. Un cambio frecuente puede indicar una necesidad no atendida.</span></span></div>
             <div class="ibox" style="padding:14px 16px"><div id="db-mm"></div></div>
           </div>
         </div>
@@ -1032,16 +1034,16 @@ function loadDemoData(){ /* no-op en v8 — datos en Supabase */ }
 //  DATA
 // ═══════════════════════════════════════════════════════════════════════════
 const MM_D=[
-  {id:'curiosidad',e:'🔍',n:'Curiosidad',d:'Aprender'},
-  {id:'honor',e:'🏅',n:'Honor',d:'Valores'},
-  {id:'aceptacion',e:'🤝',n:'Aceptación',d:'Pertenencia'},
-  {id:'maestria',e:'⚡',n:'Maestría',d:'Competencia'},
-  {id:'poder',e:'🎯',n:'Poder',d:'Influencia'},
-  {id:'libertad',e:'🕊️',n:'Libertad',d:'Autonomía'},
-  {id:'relaciones',e:'💛',n:'Relaciones',d:'Vínculos'},
-  {id:'orden',e:'📐',n:'Orden',d:'Estructura'},
-  {id:'meta',e:'🌟',n:'Meta',d:'Propósito'},
-  {id:'estatus',e:'👑',n:'Estatus',d:'Reconocimiento'}
+  {id:'curiosidad',e:'💡',n:'Aprender',   d:'Descubrir y crecer',        tip:'Le motiva aprender cosas nuevas, entender cómo funcionan las cosas y desarrollarse continuamente.'},
+  {id:'honor',     e:'⚖️',n:'Valores',    d:'Actuar con integridad',     tip:'Le motiva saber que su trabajo está alineado con sus principios y con lo que considera correcto.'},
+  {id:'aceptacion',e:'🫂',n:'Pertenencia',d:'Sentirse parte del equipo', tip:'Le motiva la sensación de que encaja, de que es valorado/a y de que pertenece a este grupo.'},
+  {id:'maestria',  e:'📈',n:'Mejorar',    d:'Ser cada vez mejor',        tip:'Le motiva dominar lo que hace y ver que progresa. Quiere ser referente en su área.'},
+  {id:'poder',     e:'✊',n:'Impacto',    d:'Que su trabajo importe',    tip:'Le motiva saber que lo que hace tiene efecto real: en el cliente, en el equipo o en la empresa.'},
+  {id:'libertad',  e:'🗺️',n:'Autonomía',  d:'Decidir cómo trabaja',     tip:'Le motiva tener margen para organizar su trabajo a su manera, sin microgestión.'},
+  {id:'relaciones',e:'💛',n:'Vínculos',   d:'Conexión genuina',          tip:'Le motiva la calidad de las relaciones. Trabajar con personas con quienes hay confianza real.'},
+  {id:'orden',     e:'🗂️',n:'Claridad',   d:'Saber qué se espera',      tip:'Le motiva tener un entorno predecible: objetivos claros, procesos definidos, menos ambigüedad.'},
+  {id:'meta',      e:'🧭',n:'Propósito',  d:'Su trabajo tiene sentido',  tip:'Le motiva saber que lo que hace contribuye a algo más grande. Que hay un por qué detrás.'},
+  {id:'estatus',   e:'🏆',n:'Reconocimiento',d:'Que valoren su aporte', tip:'Le motiva que su esfuerzo y sus logros sean vistos y reconocidos por las personas que importan.'}
 ];
 
 const BLOQUES=[
@@ -2113,12 +2115,20 @@ function rendBloque(idx){
 
   if(b.mm){
     const lastMMD=loadMM(pAct.n+'_date')||null;
-    const suggest=!lastMMD||daysSince(lastMMD)>85;
+    const isFirst=!lastMMD;
+    const suggest=!isFirst&&daysSince(lastMMD)>85;
     bh+=`<div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">`;
-    bh+=`<div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px">Moving Motivators`;
+    bh+=`<div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:6px;display:flex;align-items:center;gap:7px">Motivadores de ${pAct.n}`;
+    if(isFirst)bh+=`<span class="pill p-amb">Primera vez</span>`;
     if(suggest)bh+=`<span class="pill p-amb">Trimestral recomendado</span>`;
-    bh+=`</div><div style="font-size:11.5px;color:var(--tx3);margin-bottom:10px;line-height:1.4">Construidlo juntos. Clic para marcar si el motivador sube ▲ o baja ▼.</div><div class="mm-grid" id="mm-ses">`;
-    MM_D.forEach(m=>{const v=mmSes[m.id]||'n';bh+=`<div class="mmc ${v==='u'?'up':v==='d'?'dn':''}" onclick="togMM('${m.id}')"><div class="mme">${m.e}</div><div class="mmn">${m.n}</div><div class="mmd">${m.d}</div><div class="mms">${v==='u'?'▲ Sube':v==='d'?'▼ Baja':'—'}</div></div>`;});
+    bh+=`</div>`;
+    if(isFirst){
+      bh+=`<div style="background:rgba(216,165,95,0.06);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:10px 13px;margin-bottom:12px;font-size:11.5px;color:var(--tx2);line-height:1.6"><strong style="color:var(--oroD)">Primera vez con esta herramienta.</strong> Pregunta a ${pAct.n} cuáles son los 3 motivadores que más le importan ahora mismo en su trabajo. Márcalos como <span style="color:var(--ok);font-weight:700">▲ Sube</span> para que queden registrados como su línea base.</div>`;
+    } else {
+      bh+=`<div style="font-size:11.5px;color:var(--tx3);margin-bottom:12px;line-height:1.5">¿Ha cambiado algo desde la última vez? Marca los que han subido <span style="color:var(--ok);font-weight:700">▲</span> o bajado <span style="color:var(--red);font-weight:700">▼</span> en importancia.</div>`;
+    }
+    bh+=`<div class="mm-grid" id="mm-ses">`;
+    MM_D.forEach(m=>{const v=mmSes[m.id]||'n';bh+=`<div class="mmc ${v==='u'?'up':v==='d'?'dn':''}" onclick="togMM('${m.id}')"><div class="mme">${m.e}</div><div class="mm-txt"><div class="mmn">${m.n}</div><div class="mmd">${m.d}</div><div class="mms">${v==='u'?'▲ Ha subido':v==='d'?'▼ Ha bajado':'—'}</div></div><div class="mminfo" onclick="event.stopPropagation()">i<div class="mmtip">${m.tip}</div></div></div>`;});
     bh+=`</div></div>`;
   }
 
@@ -2190,7 +2200,7 @@ function togMM(id){
   MM_D.forEach((m,i)=>{
     const st=mmSes[m.id]||'n';const el=cards[i];if(!el)return;
     el.className='mmc '+(st==='u'?'up':st==='d'?'dn':'');
-    el.querySelector('.mms').textContent=st==='u'?'▲ Sube':st==='d'?'▼ Baja':'—';
+    el.querySelector('.mms').textContent=st==='u'?'▲ Ha subido':st==='d'?'▼ Ha bajado':'—';
   });
 }
 
