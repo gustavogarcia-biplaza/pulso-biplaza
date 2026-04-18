@@ -1,0 +1,52 @@
+/* ─────────────────────────────────────────────
+   PULSO BIPLAZA — Tokens de diseño
+   Fuente: biplaza-platform/diseno/tokens.css
+   No modificar valores directamente aquí.
+───────────────────────────────────────────── */
+:root {
+  /* Superficie */
+  --sb: #23282E;
+  --sbl: rgba(255,255,255,0.07);
+
+  /* Dorado — color de marca */
+  --oro: #D8A55F;
+  --oroL: #F5E6CC;
+  --oroD: #A07030;
+  --oroM: #EDD9B0;
+
+  /* Crema — fondo principal */
+  --cream: #F7F4EF;
+  --cD: #EDE8DF;
+  --cDD: #E2DCD3;
+
+  /* Blancos y texto */
+  --wh: #FFFFFF;
+  --tx: #18181A;
+  --tx2: #52524E;
+  --tx3: #8A8880;
+  --tx4: #B8B5AE;
+  --bd: #E0D9CE;
+
+  /* Semáforo */
+  --red: #C84B20;
+  --redL: #F5C4B3;
+  --redB: #FDF0EB;
+  --amb: #B87316;
+  --ambL: #FACE80;
+  --ambB: #FDF3E3;
+  --ok: #3A6B10;
+  --okL: #C0DD97;
+  --okB: #EAF3DE;
+
+  /* Radios */
+  --r: 12px;
+  --r2: 8px;
+  --r3: 6px;
+
+  /* Sombras */
+  --sh: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+  --sh2: 0 4px 16px rgba(0,0,0,0.08);
+
+  /* Tipografía */
+  --f: 'DM Sans', sans-serif;
+}
