@@ -224,14 +224,22 @@ textarea:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 3px rgba(21
 .step-row.act .step-t{color:var(--oroD);font-weight:600}.step-row.done .step-t{color:var(--ok)}
 .step-min{font-size:9px;color:var(--tx4);flex-shrink:0;white-space:nowrap}
 /* MM in session */
-.mm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-.mmc{background:var(--cream);border:1.5px solid var(--bd);border-radius:var(--r2);padding:11px 12px;cursor:pointer;transition:all 0.13s;user-select:none;display:flex;align-items:center;gap:10px;position:relative}
-.mmc:hover{border-color:var(--oro);background:var(--oroL)}
-.mmc.up{border-color:var(--ok);background:var(--okB)}.mmc.dn{border-color:var(--red);background:var(--redB)}
-.mme{font-size:22px;flex-shrink:0;line-height:1}.mminfo{position:absolute;top:7px;right:8px;width:15px;height:15px;border-radius:50%;background:rgba(216,165,95,0.15);border:1px solid rgba(216,165,95,0.3);color:var(--oroD);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0}.mminfo:hover .mmtip{display:block}
-.mmtip{display:none;position:absolute;top:22px;right:0;background:var(--sb);color:rgba(255,255,255,0.85);font-size:10px;line-height:1.5;padding:7px 10px;border-radius:6px;width:200px;z-index:50;pointer-events:none;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
-.mm-txt{flex:1;min-width:0}.mmn{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:1px}.mmd{font-size:10px;color:var(--tx3);line-height:1.3}.mms{font-size:10px;font-weight:700;margin-top:3px;min-height:14px}
-.mmc.up .mms{color:var(--ok)}.mmc.dn .mms{color:var(--red)}.mmc .mms{color:var(--tx4)}
+.mmr-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.mmr-item{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--cream);border:1.5px solid var(--bd);border-radius:var(--r2);transition:background 0.12s;position:relative}
+.mmr-item:hover{border-color:rgba(216,165,95,0.4)}
+.mmr-pos{width:22px;height:22px;border-radius:50%;background:var(--oroL);color:var(--oroD);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.mmr-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex-shrink:0}
+.mmr-txt{flex:1;min-width:0}
+.mmr-name{font-size:12px;font-weight:700;color:var(--tx)}
+.mmr-desc{font-size:10px;color:var(--tx3);margin-top:1px}
+.mmr-delta{width:26px;text-align:center;flex-shrink:0;font-size:9px;font-weight:700}
+.mmr-ctrl{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.mmr-btn{background:none;border:1px solid var(--bd);border-radius:3px;width:18px;height:18px;cursor:pointer;font-size:10px;color:var(--tx3);display:flex;align-items:center;justify-content:center;padding:0;transition:all 0.1s;line-height:1;font-family:var(--f)}
+.mmr-btn:hover:not(:disabled){border-color:var(--oro);color:var(--oroD);background:var(--oroL)}
+.mmr-btn:disabled{opacity:0.25;cursor:not-allowed}
+.mminfo{position:absolute;top:6px;right:7px;width:14px;height:14px;border-radius:50%;background:rgba(216,165,95,0.12);border:1px solid rgba(216,165,95,0.25);color:var(--tx3);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0}
+.mminfo:hover .mmtip{display:block}
+.mmtip{display:none;position:absolute;top:20px;right:0;background:var(--sb);color:rgba(255,255,255,0.85);font-size:10px;line-height:1.5;padding:7px 10px;border-radius:6px;width:200px;z-index:50;pointer-events:none;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
 /* CALENDAR */
 .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .cal-m{font-size:16px;font-weight:500;color:var(--tx);flex:1}
@@ -1034,16 +1042,46 @@ function loadDemoData(){ /* no-op en v8 — datos en Supabase */ }
 //  DATA
 // ═══════════════════════════════════════════════════════════════════════════
 const MM_D=[
-  {id:'curiosidad',e:'💡',n:'Aprender',   d:'Descubrir y crecer',        tip:'Le motiva aprender cosas nuevas, entender cómo funcionan las cosas y desarrollarse continuamente.'},
-  {id:'honor',     e:'⚖️',n:'Valores',    d:'Actuar con integridad',     tip:'Le motiva saber que su trabajo está alineado con sus principios y con lo que considera correcto.'},
-  {id:'aceptacion',e:'🫂',n:'Pertenencia',d:'Sentirse parte del equipo', tip:'Le motiva la sensación de que encaja, de que es valorado/a y de que pertenece a este grupo.'},
-  {id:'maestria',  e:'📈',n:'Mejorar',    d:'Ser cada vez mejor',        tip:'Le motiva dominar lo que hace y ver que progresa. Quiere ser referente en su área.'},
-  {id:'poder',     e:'✊',n:'Impacto',    d:'Que su trabajo importe',    tip:'Le motiva saber que lo que hace tiene efecto real: en el cliente, en el equipo o en la empresa.'},
-  {id:'libertad',  e:'🗺️',n:'Autonomía',  d:'Decidir cómo trabaja',     tip:'Le motiva tener margen para organizar su trabajo a su manera, sin microgestión.'},
-  {id:'relaciones',e:'💛',n:'Vínculos',   d:'Conexión genuina',          tip:'Le motiva la calidad de las relaciones. Trabajar con personas con quienes hay confianza real.'},
-  {id:'orden',     e:'🗂️',n:'Claridad',   d:'Saber qué se espera',      tip:'Le motiva tener un entorno predecible: objetivos claros, procesos definidos, menos ambigüedad.'},
-  {id:'meta',      e:'🧭',n:'Propósito',  d:'Su trabajo tiene sentido',  tip:'Le motiva saber que lo que hace contribuye a algo más grande. Que hay un por qué detrás.'},
-  {id:'estatus',   e:'🏆',n:'Reconocimiento',d:'Que valoren su aporte', tip:'Le motiva que su esfuerzo y sus logros sean vistos y reconocidos por las personas que importan.'}
+  {id:'curiosidad',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5c-1.5-1-4-1.5-7-1v12c3-.5 5.5 0 7 1 1.5-1 4-1.5 7-1V4c-3 0-5.5.5-7 1z"/><line x1="10" y1="5" x2="10" y2="17"/></svg>',
+   n:'Aprender', d:'Descubrir y crecer',
+   tip:'Le motiva aprender cosas nuevas, entender cómo funcionan las cosas y desarrollarse continuamente.'},
+  {id:'honor',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="3" x2="10" y2="17"/><line x1="7" y1="17" x2="13" y2="17"/><path d="M4 7l-2 5h4z"/><path d="M16 7l-2 5h4z"/><line x1="4" y1="7" x2="16" y2="7"/></svg>',
+   n:'Valores', d:'Actuar con integridad',
+   tip:'Le motiva saber que su trabajo está alineado con sus principios y con lo que considera correcto.'},
+  {id:'aceptacion',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="2.5"/><path d="M1.5 18c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="14" cy="6" r="2"/><path d="M18.5 17c0-2.5-2-4-4.5-4"/></svg>',
+   n:'Pertenencia', d:'Sentirse parte del equipo',
+   tip:'Le motiva la sensación de que encaja, de que es valorado/a y de que pertenece a este grupo.'},
+  {id:'maestria',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,15 7,9 11,12 18,4"/><polyline points="13,4 18,4 18,9"/></svg>',
+   n:'Mejorar', d:'Ser cada vez mejor',
+   tip:'Le motiva dominar lo que hace y ver que progresa. Quiere ser referente en su área.'},
+  {id:'poder',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><circle cx="10" cy="10" r="4"/><circle cx="10" cy="10" r="1" fill="currentColor" stroke="none"/></svg>',
+   n:'Impacto', d:'Que su trabajo importe',
+   tip:'Le motiva saber que lo que hace tiene efecto real: en el cliente, en el equipo o en la empresa.'},
+  {id:'libertad',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="8.5" r="3.5"/><path d="M11 11.5l6 5"/><path d="M14 13l1.5 1.5"/></svg>',
+   n:'Autonomía', d:'Decidir cómo trabaja',
+   tip:'Le motiva tener margen para organizar su trabajo a su manera, sin microgestión.'},
+  {id:'relaciones',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 13.5a4.5 4.5 0 006-.5l2-2a4.5 4.5 0 00-6.5-6.5l-1 1"/><path d="M11.5 6.5a4.5 4.5 0 00-6 .5l-2 2a4.5 4.5 0 006.5 6.5l1-1"/></svg>',
+   n:'Vínculos', d:'Conexión genuina',
+   tip:'Le motiva la calidad de las relaciones. Trabajar con personas con quienes hay confianza real.'},
+  {id:'orden',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="17" y2="6"/><line x1="8" y1="10" x2="17" y2="10"/><line x1="8" y1="14" x2="17" y2="14"/><polyline points="3,5 4.5,6.5 7,4"/><polyline points="3,9 4.5,10.5 7,8"/><polyline points="3,13 4.5,14.5 7,12"/></svg>',
+   n:'Claridad', d:'Saber qué se espera',
+   tip:'Le motiva tener un entorno predecible: objetivos claros, procesos definidos, menos ambigüedad.'},
+  {id:'meta',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="3" x2="4" y2="17"/><path d="M4 4h10l-2.5 4 2.5 4H4"/></svg>',
+   n:'Propósito', d:'Su trabajo tiene sentido',
+   tip:'Le motiva saber que lo que hace contribuye a algo más grande. Que hay un por qué detrás.'},
+  {id:'estatus',
+   e:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7.5" r="4"/><path d="M6.5 11l-1.5 6 5-2 5 2-1.5-6"/></svg>',
+   n:'Reconocimiento', d:'Que valoren su aporte',
+   tip:'Le motiva que su esfuerzo y sus logros sean vistos y reconocidos por las personas que importan.'}
 ];
 
 const BLOQUES=[
@@ -1303,7 +1341,22 @@ function sesToRow(ses,pmap){
 // ── Lecturas (síncronas desde caché) ────────────────────────────────────────
 const loadH=()=>[...C.hist];
 const loadT=()=>[...C.team];
-const loadMM=n=>{const e=C.mm[n];return e?e.datos:{};};
+function loadMM(nombre){
+  const e=C.mm[nombre];
+  if(!e||!e.datos)return{datos:null,fecha:null,formato:'vacio'};
+  const vals=Object.values(e.datos);
+  if(!vals.length)return{datos:null,fecha:null,formato:'vacio'};
+  const esLegacy=vals.some(v=>typeof v==='string');
+  return{datos:e.datos,fecha:e.fecha,formato:esLegacy?'legacy':'ranking'};
+}
+
+function initMMRanking(nombrePersona){
+  const{datos,formato}=loadMM(nombrePersona);
+  if(formato==='ranking'&&datos){
+    return Object.entries(datos).sort((a,b)=>a[1]-b[1]).map(e=>e[0]);
+  }
+  return MM_D.map(m=>m.id);
+}
 const loadNote=n=>C.notes[n]||'';
 
 // ── Escrituras (async → Supabase + actualiza caché) ─────────────────────────
@@ -1684,7 +1737,7 @@ const COLMAP={red:'var(--red)',amb:'var(--amb)',ok:'var(--ok)',none:'var(--tx4)'
 // ═══════════════════════════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════════════════════════
-let pAct=null,bAct=0,notas={},qresp={},fw={},comp={c:['','',''],r:['','','']},fProx='',tSeg=0,tInt=null,mmSes={},isFirstSes=false,sesDate=null;
+let pAct=null,bAct=0,notas={},qresp={},fw={},comp={c:['','',''],r:['','','']},fProx='',tSeg=0,tInt=null,mmSes=[],isFirstSes=false,sesDate=null;
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
 let profPerson=null;
 
@@ -1944,12 +1997,24 @@ function rendDB(){
   }).join('');
 
   // MM panel
-  const mmC={};MM_D.forEach(m=>{mmC[m.id]={u:0,d:0};});
-  hist.forEach(s=>{if(s.mm)Object.keys(s.mm).forEach(k=>{if(mmC[k]){if(s.mm[k]==='u')mmC[k].u++;if(s.mm[k]==='d')mmC[k].d++;}});});
-  const mmS=MM_D.map(m=>({...m,...mmC[m.id],tot:mmC[m.id].u+mmC[m.id].d})).filter(m=>m.tot>0).sort((a,b)=>b.tot-a.tot);
+  const mmPersonas=Object.values(C.mm).filter(e=>e&&e.datos);
+  const mmScores={};MM_D.forEach(m=>{mmScores[m.id]={total:0,count:0};});
+  mmPersonas.forEach(e=>{
+    if(!e.datos)return;
+    const vals=Object.values(e.datos);
+    const esRanking=vals.length&&vals.every(v=>typeof v==='number');
+    if(!esRanking)return;
+    Object.entries(e.datos).forEach(([id,pos])=>{if(mmScores[id]){mmScores[id].total+=pos;mmScores[id].count++;}});
+  });
+  const mmSorted=MM_D.map(m=>({...m,media:mmScores[m.id].count?Math.round(mmScores[m.id].total/mmScores[m.id].count*10)/10:null,count:mmScores[m.id].count})).filter(m=>m.count>0).sort((a,b)=>a.media-b.media);
   const mmEl=document.getElementById('db-mm');
-  if(!mmS.length)mmEl.innerHTML='<div class="empty">Sin datos de motivadores</div>';
-  else mmEl.innerHTML=mmS.slice(0,6).map(m=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--cD)"><span style="font-size:16px">${m.e}</span><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--tx)">${m.n}</div><div style="display:flex;gap:6px;margin-top:2px">${m.u?`<span style="font-size:10px;font-weight:700;color:var(--ok)">▲ ${m.u}</span>`:''} ${m.d?`<span style="font-size:10px;font-weight:700;color:var(--red)">▼ ${m.d}</span>`:''}</div></div><span class="pill ${m.d>m.u?'p-red':m.u>m.d?'p-ok':'p-gray'}">${m.d>m.u?'Bajando':m.u>m.d?'Subiendo':'Neutro'}</span></div>`).join('');
+  if(!mmSorted.length)mmEl.innerHTML='<div class="empty">Sin datos de motivadores aún</div>';
+  else mmEl.innerHTML=mmSorted.slice(0,6).map(m=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--cD)">
+      <div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex-shrink:0">${m.e}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--tx)">${m.n}</div><div style="font-size:10px;color:var(--tx3);margin-top:1px">Posición media: ${m.media} · ${m.count} persona${m.count>1?'s':''}</div></div>
+      <span class="pill ${m.media<=3?'p-ok':m.media>=7?'p-red':'p-gray'}" style="font-size:10px;flex-shrink:0">${m.media<=3?'Top 3':m.media>=7?'Última mitad':'Medio'}</span>
+    </div>`).join('');
 
   const bdg=document.getElementById('bdg-cal');if(bdg){bdg.textContent=red;bdg.style.display=red?'':'none';}
   const bdge=document.getElementById('bdg-eq');if(bdge){bdge.textContent=amb+red;bdge.style.display=(amb+red)?'':'none';}
@@ -2005,7 +2070,7 @@ function rendQS(){
       if(bi){bi.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>Iniciar sesión con ${p.n}`;}
       document.getElementById('ni-prof').style.display='flex';
       document.getElementById('ni-prof-n').textContent=p.n;
-      mmSes={...loadMM(p.n)};
+      mmSes=initMMRanking(p.n);
     };
     g.appendChild(el);
   });
@@ -2022,7 +2087,7 @@ function filterQS(q){
 
 function quickStart(name){
   const p=loadT().find(x=>x.n===name);if(!p)return;
-  pAct=p;mmSes={...loadMM(p.n)};
+  pAct=p;mmSes=initMMRanking(p.n);
   // Navigate to QS and pre-select the person so the date picker is visible
   go('qs',document.getElementById('ni-qs'));
   // Find the card and simulate a click
@@ -2114,22 +2179,22 @@ function rendBloque(idx){
   }
 
   if(b.mm){
-    const lastMMD=loadMM(pAct.n+'_date')||null;
-    const isFirst=!lastMMD;
-    const suggest=!isFirst&&daysSince(lastMMD)>85;
+    const{formato,fecha:mmFecha}=loadMM(pAct.n);
+    const isFirst=formato==='vacio'||formato==='legacy';
+    const suggest=!isFirst&&mmFecha&&daysSince(mmFecha)>85;
     bh+=`<div style="background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">`;
     bh+=`<div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:6px;display:flex;align-items:center;gap:7px">Motivadores de ${pAct.n}`;
     if(isFirst)bh+=`<span class="pill p-amb">Primera vez</span>`;
     if(suggest)bh+=`<span class="pill p-amb">Trimestral recomendado</span>`;
     bh+=`</div>`;
     if(isFirst){
-      bh+=`<div style="background:rgba(216,165,95,0.06);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:10px 13px;margin-bottom:12px;font-size:11.5px;color:var(--tx2);line-height:1.6"><strong style="color:var(--oroD)">Primera vez con esta herramienta.</strong> Pregunta a ${pAct.n} cuáles son los 3 motivadores que más le importan ahora mismo en su trabajo. Márcalos como <span style="color:var(--ok);font-weight:700">▲ Sube</span> para que queden registrados como su línea base.</div>`;
+      bh+=`<div style="background:rgba(216,165,95,0.06);border:1px solid rgba(216,165,95,0.2);border-radius:var(--r2);padding:10px 13px;margin-bottom:12px;font-size:11.5px;color:var(--tx2);line-height:1.6">
+        <strong style="color:var(--oroD)">Primera vez.</strong> Pregunta a ${pAct.n} cuáles son los motivadores más importantes para ella/él ahora mismo. Usa las flechas ↑↓ para ordenarlos del más al menos importante.
+      </div>`;
     } else {
-      bh+=`<div style="font-size:11.5px;color:var(--tx3);margin-bottom:12px;line-height:1.5">¿Ha cambiado algo desde la última vez? Marca los que han subido <span style="color:var(--ok);font-weight:700">▲</span> o bajado <span style="color:var(--red);font-weight:700">▼</span> en importancia.</div>`;
+      bh+=`<div style="font-size:11px;color:var(--tx3);margin-bottom:10px;line-height:1.5">Ordenados según la última sesión. Reordena si algo ha cambiado.</div>`;
     }
-    bh+=`<div class="mm-grid" id="mm-ses">`;
-    MM_D.forEach(m=>{const v=mmSes[m.id]||'n';bh+=`<div class="mmc ${v==='u'?'up':v==='d'?'dn':''}" onclick="togMM('${m.id}')"><div class="mme">${m.e}</div><div class="mm-txt"><div class="mmn">${m.n}</div><div class="mmd">${m.d}</div><div class="mms">${v==='u'?'▲ Ha subido':v==='d'?'▼ Ha bajado':'—'}</div></div><div class="mminfo" onclick="event.stopPropagation()">i<div class="mmtip">${m.tip}</div></div></div>`;});
-    bh+=`</div></div>`;
+    bh+=`<div class="mmr-list" id="mm-ses"></div></div>`;
   }
 
   if(b.wrap){
@@ -2181,6 +2246,7 @@ function rendBloque(idx){
 
   // navb is rendered into ses-nav, not ses-body
   document.getElementById('ses-body').innerHTML=`<div style="max-width:780px">${bh}</div>`;
+  rendMMList();
   // Render nav buttons into sticky footer
   const sn=document.getElementById('ses-nav');
   if(sn){
@@ -2192,22 +2258,45 @@ function rendBloque(idx){
   document.getElementById('ses-body').scrollTop=0;
 }
 
-function togMM(id){
-  const v=mmSes[id]||'n';
-  mmSes[id]=v==='n'?'u':v==='u'?'d':'n';
+function rendMMList(){
   const g=document.getElementById('mm-ses');if(!g)return;
-  const cards=g.querySelectorAll('.mmc');
-  MM_D.forEach((m,i)=>{
-    const st=mmSes[m.id]||'n';const el=cards[i];if(!el)return;
-    el.className='mmc '+(st==='u'?'up':st==='d'?'dn':'');
-    el.querySelector('.mms').textContent=st==='u'?'▲ Ha subido':st==='d'?'▼ Ha bajado':'—';
-  });
+  const{datos:prevDatos,formato:prevFormato}=loadMM(pAct?.n||'');
+  const prevRanking=prevFormato==='ranking'?prevDatos:null;
+  g.innerHTML=mmSes.map((id,idx)=>{
+    const m=MM_D.find(x=>x.id===id);if(!m)return'';
+    const pos=idx+1;
+    const prevPos=prevRanking?prevRanking[id]:null;
+    const delta=prevPos?pos-prevPos:0;
+    let deltaHtml='';
+    if(prevPos&&delta<0)deltaHtml=`<span style="color:var(--ok)">▲${Math.abs(delta)}</span>`;
+    else if(prevPos&&delta>0)deltaHtml=`<span style="color:var(--red)">▼${delta}</span>`;
+    else if(prevPos)deltaHtml=`<span style="color:var(--tx4)">=</span>`;
+    return`<div class="mmr-item">
+      <div class="mmr-pos">${pos}</div>
+      <div class="mmr-icon">${m.e}</div>
+      <div class="mmr-txt"><div class="mmr-name">${m.n}</div><div class="mmr-desc">${m.d}</div></div>
+      ${deltaHtml?`<div class="mmr-delta">${deltaHtml}</div>`:''}
+      <div class="mmr-ctrl">
+        <button class="mmr-btn" onclick="swapMM('${id}','up')" ${idx===0?'disabled':''}>↑</button>
+        <button class="mmr-btn" onclick="swapMM('${id}','down')" ${idx===mmSes.length-1?'disabled':''}>↓</button>
+      </div>
+      <div class="mminfo" onclick="event.stopPropagation()">i<div class="mmtip">${m.tip}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function swapMM(id,dir){
+  const idx=mmSes.indexOf(id);if(idx<0)return;
+  const ni=dir==='up'?idx-1:idx+1;
+  if(ni<0||ni>=mmSes.length)return;
+  [mmSes[idx],mmSes[ni]]=[mmSes[ni],mmSes[idx]];
+  rendMMList();
 }
 
 function rendSide(idx){
   const hist=loadH();
   const prev=hist.filter(s=>s.p.n===pAct.n).slice(0,3);
-  const mm=loadMM(pAct.n);
+  const{datos:mmDatosSide,formato:mmFormatoSide}=loadMM(pAct.n);
   const pnote=loadNote(pAct.n);
   const crPend=prev.flatMap(s=>(s.c?.r||[]).filter(Boolean).map(x=>({txt:x,f:s.f})));
   let sh='';
@@ -2251,10 +2340,13 @@ function rendSide(idx){
     sh+=`</div>`;
   });
   // MM summary
-  const mmAct=MM_D.map(m=>{const v=mm[m.id];return v&&v!=='n'?{...m,v}:null;}).filter(Boolean);
-  if(mmAct.length){
-    sh+=`<div class="divider"></div><div style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Motivadores</div>`;
-    sh+=`<div style="display:flex;flex-wrap:wrap;gap:4px">${mmAct.map(m=>`<span class="pill ${m.v==='u'?'p-ok':'p-red'}" style="font-size:9px">${m.e} ${m.v==='u'?'▲':'▼'} ${m.n}</span>`).join('')}</div>`;
+  const mmActSide=mmFormatoSide==='ranking'&&mmDatosSide
+    ?Object.entries(mmDatosSide).sort((a,b)=>a[1]-b[1]).slice(0,3)
+      .map(([id,pos])=>({...MM_D.find(m=>m.id===id),pos})).filter(Boolean)
+    :[];
+  if(mmActSide.length){
+    sh+=`<div class="divider"></div><div style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Top motivadores</div>`;
+    sh+=`<div style="display:flex;flex-direction:column;gap:3px">${mmActSide.map(m=>`<div style="display:flex;align-items:center;gap:6px;font-size:11px"><span style="width:14px;height:14px;border-radius:50%;background:var(--oroL);color:var(--oroD);font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${m.pos}</span><span style="width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--tx3)">${m.e}</span><span style="color:var(--tx2);font-weight:600">${m.n}</span></div>`).join('')}</div>`;
   }
   sh+=`<div style="margin-top:12px"><button class="btn lt" style="width:100%;font-size:11px;padding:6px;justify-content:center" onclick="openProfDirect('${pAct.n}')">Ver ficha de ${pAct.n} →</button></div>`;
   document.getElementById('ses-side').innerHTML=sh;
@@ -2590,7 +2682,8 @@ async function guardar(){
   const sn=document.getElementById('ses-nav');if(sn)sn.className='ses-nav';
   const [sy,sm,sd]=sesDate.split('-');
   const sesF=`${sd}/${sm}/${sy}`;
-  const ses={p:pAct,f:sesF,isoDate:sesDate,first:isFirstSes,n:{...notas},qr:JSON.parse(JSON.stringify(qresp)),fw:{...fw},c:{c:[...comp.c],r:[...comp.r]},prx:fProx,mm:{...mmSes}};
+  const mmDatos={};if(mmSes.length){mmSes.forEach((id,idx)=>{mmDatos[id]=idx+1;});}
+  const ses={p:pAct,f:sesF,isoDate:sesDate,first:isFirstSes,n:{...notas},qr:JSON.parse(JSON.stringify(qresp)),fw:{...fw},c:{c:[...comp.c],r:[...comp.r]},prx:fProx,mm:mmDatos};
 
   // Mostrar estado guardando
   const main=document.querySelector('.ses-main');
@@ -2599,7 +2692,7 @@ async function guardar(){
   try{
     await saveH_db(ses);
     // Guardar MM en caché local
-    if(Object.keys(mmSes).length)C.mm[pAct.n]={datos:{...mmSes},fecha:sesDate};
+    if(mmSes.length)C.mm[pAct.n]={datos:mmDatos,fecha:sesDate};
     // Guardar programación si hay próxima fecha
     if(fProx)await saveP_db(pAct.n,fProx);
 
@@ -2714,13 +2807,16 @@ function rendProf(){
   const p=profPerson;
   const hist=loadH().filter(s=>s.p.n===p.n);
   const prog=loadP().filter(x=>x.persona===p.n&&x.fecha>=td()).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  const mm=loadMM(p.n);
   const ls=hist[0];
   const st=semOf(p,ls)||'none';
   const pnote=loadNote(p.n);
   const allCC=hist.flatMap(s=>(s.c?.c||[]).filter(Boolean).map(x=>({txt:x,f:s.f})));
   const allCR=hist.flatMap(s=>(s.c?.r||[]).filter(Boolean).map(x=>({txt:x,f:s.f})));
-  const mmAct=MM_D.map(m=>{const v=mm[m.id];return v&&v!=='n'?{...m,v}:null;}).filter(Boolean);
+  const{datos:mmDatosProf,formato:mmFormatoProf}=loadMM(p.n);
+  const mmAct=mmFormatoProf==='ranking'&&mmDatosProf
+    ?Object.entries(mmDatosProf).sort((a,b)=>a[1]-b[1]).slice(0,3)
+      .map(([id,pos])=>({...MM_D.find(m=>m.id===id),pos})).filter(Boolean)
+    :[];
 
   let h=`<div class="prof-hero">`;
   h+=`<div style="display:flex;align-items:flex-start;gap:16px">`;
@@ -2834,7 +2930,12 @@ function rendProf(){
   // MM
   h+=`<div class="sec">Moving Motivators</div><div class="ibox" style="padding:12px 14px;margin-bottom:14px">`;
   if(!mmAct.length)h+=`<div style="font-size:12px;color:var(--tx3);font-style:italic;padding:4px 0">Sin datos registrados</div>`;
-  else h+=mmAct.map(m=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--cD)"><span style="font-size:18px">${m.e}</span><div style="flex:1"><div style="font-size:12.5px;font-weight:500">${m.n}</div><div style="font-size:11px;color:var(--tx3)">${m.d}</div></div><span class="pill ${m.v==='u'?'p-ok':'p-red'}">${m.v==='u'?'▲ Sube':'▼ Baja'}</span></div>`).join('');
+  else h+=`<div style="display:flex;flex-direction:column;gap:4px">${mmAct.map(m=>`
+    <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--tx2)">
+      <span style="width:16px;height:16px;border-radius:50%;background:var(--oroL);color:var(--oroD);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${m.pos}</span>
+      <span style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:var(--tx2)">${m.e}</span>
+      <span style="font-weight:600">${m.n}</span>
+    </div>`).join('')}</div>`;
   h+=`</div>`;
   // All commitments
   if(allCC.length||allCR.length){
