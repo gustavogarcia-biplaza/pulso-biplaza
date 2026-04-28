@@ -237,6 +237,12 @@ textarea:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 3px rgba(21
 .mmr-btn{background:none;border:1px solid var(--bd);border-radius:3px;width:18px;height:18px;cursor:pointer;font-size:10px;color:var(--tx3);display:flex;align-items:center;justify-content:center;padding:0;transition:all 0.1s;line-height:1;font-family:var(--f)}
 .mmr-btn:hover:not(:disabled){border-color:var(--oro);color:var(--oroD);background:var(--oroL)}
 .mmr-btn:disabled{opacity:0.25;cursor:not-allowed}
+.mmr-item[draggable="true"]{cursor:grab}
+.mmr-item[draggable="true"]:active{cursor:grabbing}
+.mmr-item.mm-dragging{opacity:0.4;border-style:dashed}
+.mmr-item.mm-dragover{border-color:var(--oro);background:var(--oroL);transform:translateY(-1px)}
+.mmr-ctrl{display:flex;flex-direction:column;gap:2px;flex-shrink:0;opacity:0.35;transition:opacity 0.15s}
+.mmr-item:hover .mmr-ctrl{opacity:1}
 .mmr-tip-inline{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;background:rgba(216,165,95,0.12);border:1px solid rgba(216,165,95,0.25);color:var(--tx3);font-size:8px;font-weight:700;cursor:default;position:relative;vertical-align:middle;margin-left:4px;font-style:normal}
 .mmr-tip-inline:hover .mmr-tip-box,.mmr-tip-inline:focus .mmr-tip-box{display:block}
 .mmr-tip-box{display:none;position:absolute;left:0;top:16px;background:var(--sb);color:rgba(255,255,255,0.85);font-size:10px;font-weight:400;line-height:1.5;padding:7px 10px;border-radius:6px;width:200px;z-index:50;pointer-events:none;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
@@ -2271,7 +2277,7 @@ function rendMMList(){
     if(prevPos&&delta<0)deltaHtml=`<span style="color:var(--ok)">▲${Math.abs(delta)}</span>`;
     else if(prevPos&&delta>0)deltaHtml=`<span style="color:var(--red)">▼${delta}</span>`;
     else if(prevPos)deltaHtml=`<span style="color:var(--tx4)">=</span>`;
-    return`<div class="mmr-item">
+    return`<div class="mmr-item" draggable="true" ondragstart="mmDragStart(event,'${id}')" ondragover="mmDragOver(event)" ondrop="mmDrop(event,'${id}')" ondragend="mmDragEnd(event)" ondragleave="mmDragLeave(event)">
       <div class="mmr-pos">${pos}</div>
       <div class="mmr-icon">${m.e}</div>
       <div class="mmr-txt"><div class="mmr-name">${m.n}<span class="mmr-tip-inline" tabindex="0">i<span class="mmr-tip-box">${m.tip}</span></span></div><div class="mmr-desc">${m.d}</div></div>
@@ -2290,6 +2296,43 @@ function swapMM(id,dir){
   if(ni<0||ni>=mmSes.length)return;
   [mmSes[idx],mmSes[ni]]=[mmSes[ni],mmSes[idx]];
   rendMMList();
+}
+
+let _mmDragId=null;
+
+function mmDragStart(e,id){
+  _mmDragId=id;
+  e.currentTarget.classList.add('mm-dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+
+function mmDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('mm-dragover');
+}
+
+function mmDragLeave(e){
+  e.currentTarget.classList.remove('mm-dragover');
+}
+
+function mmDrop(e,targetId){
+  e.preventDefault();
+  e.currentTarget.classList.remove('mm-dragover');
+  if(!_mmDragId||_mmDragId===targetId)return;
+  const fromIdx=mmSes.indexOf(_mmDragId);
+  const toIdx=mmSes.indexOf(targetId);
+  if(fromIdx<0||toIdx<0)return;
+  mmSes.splice(fromIdx,1);
+  mmSes.splice(toIdx,0,_mmDragId);
+  _mmDragId=null;
+  rendMMList();
+}
+
+function mmDragEnd(e){
+  e.currentTarget.classList.remove('mm-dragging');
+  _mmDragId=null;
+  document.querySelectorAll('.mmr-item').forEach(el=>el.classList.remove('mm-dragover','mm-dragging'));
 }
 
 function rendSide(idx){
