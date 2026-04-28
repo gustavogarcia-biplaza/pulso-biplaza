@@ -349,6 +349,9 @@ textarea:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 3px rgba(21
 .qs-card{background:var(--wh);border:1.5px solid var(--bd);border-radius:var(--r2);padding:11px 13px;cursor:pointer;transition:all 0.14s;position:relative}
 .qs-card:hover{border-color:var(--oro);transform:translateY(-1px)}
 .qs-card.on{border-color:var(--oro);background:var(--oroL);box-shadow:0 0 0 3px rgba(216,165,95,0.18)}
+.qs-start-btn{position:absolute;bottom:10px;right:10px;background:var(--sb);border:none;border-radius:var(--r3);padding:4px 10px;font-size:10px;font-weight:700;color:var(--oro);cursor:pointer;font-family:var(--f);opacity:0;transition:opacity 0.15s;white-space:nowrap}
+.qs-card:hover .qs-start-btn{opacity:1}
+.qs-card.on .qs-start-btn{opacity:1;background:var(--oro);color:var(--sb)}
 .qs-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%}
 .qs-dot.red{background:var(--red)}.qs-dot.amb{background:var(--amb)}.qs-dot.ok{background:var(--ok)}.qs-dot.none{background:var(--tx4)}
 .bm-pane{animation:fadeIn 0.15s ease}
@@ -542,7 +545,7 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
     <div class="sb-grp">Sesiones</div>
     <div class="ni cta" id="ni-qs" onclick="go('qs',this)">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
-      Iniciar One to One
+      Nueva sesión
     </div>
     <div class="ni" id="ni-eq" onclick="go('eq',this)">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87" stroke-width="2"/></svg>
@@ -706,8 +709,8 @@ l-240 0 -29 33 c-32 34 -60 93 -358 762 -282 634 -514 1144 -520 1145 -3 0
               <div style="width:44px;height:44px;border-radius:50%;background:rgba(216,165,95,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
                 <svg width="20" height="20" fill="none" stroke="var(--oro)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/></svg>
               </div>
-              <div style="font-size:14px;font-weight:500;color:var(--wh);margin-bottom:4px">Selecciona una persona</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.4">Verás su contexto antes de iniciar</div>
+              <div style="font-size:14px;font-weight:500;color:var(--wh);margin-bottom:4px">¿Con quién te reúnes hoy?</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.4">Pulsa «Empezar →» en cualquier tarjeta para comenzar directamente.</div>
             </div>
             <div class="ibox" style="padding:14px 16px">
               <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Estado del equipo</div>
@@ -2037,10 +2040,18 @@ function rendQS(){
   let red=0,amb=0,ok2=0,pg=0;
   team.forEach(p=>{const st=semOf(p,ls[p.n]);if(st==='red'||st==='none')red++;else if(st==='amb')amb++;else ok2++;});
   prog.filter(x=>x.fecha===today).forEach(()=>pg++);
-  const sr=document.getElementById('qs-st-r'),sa=document.getElementById('qs-st-a'),so=document.getElementById('qs-st-o'),sp=document.getElementById('qs-st-p');
-  if(sr)sr.textContent=red;if(sa)sa.textContent=amb;if(so)so.textContent=ok2;if(sp)sp.textContent=pg;
+
   const cnt=document.getElementById('qs-cnt');if(cnt)cnt.textContent=team.length+' personas activas';
 
+  // Ordenar por urgencia: red/none primero, luego amb, luego ok
+  const semOrd={red:0,none:0,amb:1,ok:2};
+  team.sort((a,b)=>{
+    const sa=semOf(a,ls[a.n])||'none', sb=semOf(b,ls[b.n])||'none';
+    if(semOrd[sa]!==semOrd[sb])return semOrd[sa]-semOrd[sb];
+    const da=ls[a.n]?daysSince(ls[a.n].f):999;
+    const db=ls[b.n]?daysSince(ls[b.n].f):999;
+    return db-da;
+  });
   const g=document.getElementById('qs-grid');
   if(!g)return;
   g.innerHTML='';
@@ -2049,7 +2060,7 @@ function rendQS(){
     const d=lS?daysSince(lS.f):null;
     const hc=lS&&((lS.c?.c||[]).filter(Boolean).length+(lS.c?.r||[]).filter(Boolean).length)>0;
     const el=document.createElement('div');el.className='qs-card';el.dataset.name=p.n;el.dataset.area=p.a;
-    el.innerHTML=`<div class="qs-dot ${st}"></div><div style="font-size:12.5px;font-weight:500;color:var(--tx);padding-right:14px">${p.n}</div><div style="font-size:11px;color:var(--tx3);margin-top:1px">${p.a} · <b style="color:var(--oroD)">${p.nv}</b></div><div style="font-size:10px;font-weight:700;color:${COLMAP[st]};margin-top:5px">${d===null?'Sin sesiones':d+'d'}</div><div style="font-size:9px;color:var(--tx4);margin-top:1px">${lS?(hc?'Con compromisos':'Sin compromisos'):'—'}</div>`;
+    el.innerHTML=`<div class="qs-dot ${st}"></div><div style="font-size:12.5px;font-weight:500;color:var(--tx);padding-right:14px">${p.n}</div><div style="font-size:11px;color:var(--tx3);margin-top:1px">${p.a} · <b style="color:var(--oroD)">${p.nv}</b></div><div style="font-size:10px;font-weight:700;color:${COLMAP[st]};margin-top:5px">${d===null?'Sin sesiones':d+'d'}</div><div style="font-size:9px;color:var(--tx4);margin-top:1px">${lS?(hc?'Con compromisos':'Sin compromisos'):'—'}</div><button class="qs-start-btn" onclick="event.stopPropagation();iniciarDirecto('${p.n.replace(/'/g,"\\'")}')" title="Empezar sesión con ${p.n}">Empezar →</button>`;
     el.onclick=()=>{
       document.querySelectorAll('.qs-card').forEach(x=>x.classList.remove('on'));
       el.classList.add('on');pAct=p;
@@ -2073,7 +2084,7 @@ function rendQS(){
         comps.innerHTML=ch;
       }
       const bi=document.getElementById('btn-ini');
-      if(bi){bi.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>Iniciar sesión con ${p.n}`;}
+      if(bi){bi.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>Empezar sesión con ${p.n} →`;}
       document.getElementById('ni-prof').style.display='flex';
       document.getElementById('ni-prof-n').textContent=p.n;
       mmSes=initMMRanking(p.n);
@@ -2123,6 +2134,16 @@ function rendEQ(){
 // ═══════════════════════════════════════════════════════════════════════════
 //  SESSION
 // ═══════════════════════════════════════════════════════════════════════════
+function iniciarDirecto(nombre){
+  const p=loadT().find(x=>x.n===nombre);
+  if(!p)return;
+  pAct=p;
+  mmSes=initMMRanking(p.n);
+  const fi=document.getElementById('ses-fecha');
+  if(fi)fi.value=td();
+  iniciar();
+}
+
 function iniciar(){
   if(!pAct)return;
   // Read session date from input (default today)
